@@ -138,13 +138,13 @@ twostage_simulator = function(array_id = 1,
   stopifnot("list" %in% class(design_list));
   if(is.null(design_labels)) {design_labels = 1:length(design_list);}
   stopifnot(near(length(design_labels), length(design_list)));
-  if(primary_objectives$tox_target > 1 | primary_objectives$tox_target < 0){
+  if(primary_objectives[["tox_target"]] > 1 | primary_objectives[["tox_target"]] < 0){
     warning("tox_target in primary_objectives is outside of [0,1]")
   }
-  if(primary_objectives$tox_delta_no_exceed > (1-primary_objectives$tox_target) | primary_objectives$tox_delta_no_exceed < 0){
+  if(primary_objectives[["tox_delta_no_exceed"]] > (1-primary_objectives[["tox_target"]]) | primary_objectives[["tox_delta_no_exceed"]] < 0){
     warning("tox_delta_no_exceed in primary_objectives is outside of [0,1-tox_target]")
   }
-  if(primary_objectives$eff_target > 1 | primary_objectives$eff_target < 0){
+  if(primary_objectives[["eff_target"]] > 1 | primary_objectives[["eff_target"]] < 0){
     warning("eff_target in primary_objectives is outside of [0,1]")
   }
 
@@ -162,10 +162,10 @@ twostage_simulator = function(array_id = 1,
   if(!near(length(dose_outcome_curves[["tox_curve"]]),length(dose_outcome_curves[["eff_curve"]]))) {
     stop("The vectors 'tox_curve' and 'eff_curve', which are elements of 'dose_outcome_curves', must have the same length");
   }
-  if(any(dose_outcome_curves$tox_curve > 1) | any(dose_outcome_curves$tox_curve < 0)){
+  if(any(dose_outcome_curves[["tox_curve"]] > 1) | any(dose_outcome_curves[["tox_curve"]] < 0)){
     warning("tox_curve has probabilities outside of [0, 1]")
   }
-  if(any(dose_outcome_curves$eff_curve > 1) | any(dose_outcome_curves$eff_curve < 0)){
+  if(any(dose_outcome_curves[["eff_curve"]] > 1) | any(dose_outcome_curves[["eff_curve"]] < 0)){
     warning("eff_curve has probabilities outside of [0, 1]")
   }
 
@@ -178,7 +178,7 @@ twostage_simulator = function(array_id = 1,
       if(!near(length(dose_outcome_curves[["eff_curve"]]),length(dose_outcome_curves[["eff_curve_stage2"]]))) {
         stop("The vectors 'eff_curve' and 'eff_curve_stage2', which are elements of 'dose_outcome_curves', must have the same length");
       }
-      if(any(dose_outcome_curves$eff_curve_stage2 > 1) | any(dose_outcome_curves$eff_curve_stage2 < 0)){
+      if(any(dose_outcome_curves[["eff_curve_stage2"]] > 1) | any(dose_outcome_curves[["eff_curve_stage2"]] < 0)){
         warning("eff_curve_stage2 has probabilities outside of [0, 1]")
       }
       curr_efficacy_curve = dose_outcome_curves[["eff_curve_stage2"]];
