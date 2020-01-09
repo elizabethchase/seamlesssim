@@ -151,7 +151,7 @@ twostage_results <- function(files = NULL,
       newrow[2] = paste0("{",paste0(dat$dose_outcome_curves$tox_curve,collapse=","),"}");
       newrow[3] = paste0("{",paste0(dat$dose_outcome_curves$eff_curve,collapse=","),"}");
       newrow[4] = max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
-                                                         primary_objectives[["tox_delta_no_exceed"]]),0));
+                                primary_objectives[["tox_delta_no_exceed"]]),0));
       curr_admiss = (dat$dose_outcome_curves$eff_curve >= primary_objectives[["eff_target"]]) &
         (dat$dose_outcome_curves$tox_curve <=  primary_objectives[["tox_target"]] +
            primary_objectives[["tox_delta_no_exceed"]]);
@@ -167,7 +167,7 @@ twostage_results <- function(files = NULL,
 
       generating_params_for_display <- rbind(generating_params_for_display, newrow)
       mtd_as_logical = (0:length(dat$dose_outcome_curves$tox_curve)) == max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
-                                                                                  primary_objectives[["tox_delta_no_exceed"]]),0))
+                                                                                      primary_objectives[["tox_delta_no_exceed"]]),0))
       generating_params = rbind(generating_params,
                                 cbind(dat$dose_outcome_curves$scenario,
                                       0:length(dat$dose_outcome_curves$tox_curve),
@@ -223,13 +223,13 @@ twostage_results <- function(files = NULL,
                     levels = c(1,2,3,4))) %>%
     arrange(scenario, dose_num);
 
-  if (!near(length(design_labels), length(unique(trial_summary$design)))){
-    stop("'design_labels' must be the same length as the number of designs")
-  }
-
   if (is.null(design_labels)){
     des_lab <- c(1:length(unique(trial_summary$design)))
   } else {des_lab <- design_labels}
+
+  if (!near(length(des_lab), length(unique(trial_summary$design)))){
+    stop("'design_labels' must be the same length as the number of designs")
+  }
 
   trial_summary <- arrange(trial_summary, design)
   for (j in 1:length(unique(trial_summary$design))){
@@ -245,10 +245,9 @@ twostage_results <- function(files = NULL,
 
   trial_summary =
     trial_summary %>%
-    arrange(design, scenario, array_id, sim_id) %>%
     mutate(design_label =
              factor(design,
-                    levels = unique(design)[order(unique(design))],
+                    levels = unique(design),
                     labels = des_lab,
                     ordered = T),
            scenario =
@@ -256,6 +255,7 @@ twostage_results <- function(files = NULL,
                     levels = unique(scenario)[order(unique(scenario))],
                     labels = paste0("Scenario ", unique(scenario)[order(unique(scenario))]),
                     ordered = T)) %>%
+    arrange(design, scenario, array_id, sim_id) %>%
     as.data.frame();
 
   # Result 1: Distribution of potential recommended dose levels (coarsened)
@@ -294,87 +294,87 @@ twostage_results <- function(files = NULL,
   for (j in unique(generating_params_tall$scen_designation)){
     subdat <- filter(generating_params_tall, scen_designation==j)
     gen_param_plot[[j]] <- ggplot(subdat,
-                                    aes(x = dose_num)) +
-        geom_point(aes(y = prob, col = is_acceptable_by_dose_num, shape = type), size = 3) +
-        geom_line(data = filter(subdat, dose_num > 0),
-                  aes(y = prob, group = type), alpha = 0.25) +
-        geom_point(data = filter(subdat, is_acceptable == 1),
-                   aes(y = prob),
-                   fill = "#00000000",
-                   shape = 22,
-                   size = 6) +
-        facet_grid(scenario ~ ., scales = "free_y") +
-        labs(x = "Dose Number",
-             y = "",
-             color = "Acceptable\nDose",
-             linetype = "Endpoint",
-             shape = "Endpoint") +
-        scale_y_continuous(expand = expand_scale(mult = 0.05)) +
-        scale_color_manual(values = outcome_colors) +
-        guides(col = FALSE,
-               shape = guide_legend(nrow = 1)) +
-        theme(text = element_text(size = 10),
-              legend.position = "top",
-              legend.text = element_text(size = legend_text_size),
-              legend.title = element_text(size = legend_text_size),
-              legend.margin = margin(t = 0, r = 5, b = 0, l = 0, unit = "pt"),
-              legend.spacing = unit(1,units = "pt"),
-              panel.grid.minor = element_blank(),
-              panel.grid.major.x = element_blank());
+                                  aes(x = dose_num)) +
+      geom_point(aes(y = prob, col = is_acceptable_by_dose_num, shape = type), size = 3) +
+      geom_line(data = filter(subdat, dose_num > 0),
+                aes(y = prob, group = type), alpha = 0.25) +
+      geom_point(data = filter(subdat, is_acceptable == 1),
+                 aes(y = prob),
+                 fill = "#00000000",
+                 shape = 22,
+                 size = 6) +
+      facet_grid(scenario ~ ., scales = "free_y") +
+      labs(x = "Dose Number",
+           y = "",
+           color = "Acceptable\nDose",
+           linetype = "Endpoint",
+           shape = "Endpoint") +
+      scale_y_continuous(expand = expand_scale(mult = 0.05)) +
+      scale_color_manual(values = outcome_colors) +
+      guides(col = FALSE,
+             shape = guide_legend(nrow = 1)) +
+      theme(text = element_text(size = 10),
+            legend.position = "top",
+            legend.text = element_text(size = legend_text_size),
+            legend.title = element_text(size = legend_text_size),
+            legend.margin = margin(t = 0, r = 5, b = 0, l = 0, unit = "pt"),
+            legend.spacing = unit(1,units = "pt"),
+            panel.grid.minor = element_blank(),
+            panel.grid.major.x = element_blank());
   }
 
   design_plot <- vector("list", length=1)
   for (j in unique(trial_summary_RP2D$set_designation)){
     for (k in unique(trial_summary_RP2D$scen_designation)){
-    subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
-    myplot =
-    ggplot(data = subdat,
-           aes(x = 1,
-               y = prop_n,
-               group = interaction(RP2DAcceptable, RP2DCode))) +
-    geom_bar(aes(fill = RP2DCode),
-             stat = "identity",
-             color = NA) +
-    geom_text(data = filter(subdat, prop_n > min_prop_to_write),
-              aes(x = 1,
-                  y = text_height,
-                  label = paste0(formatC(100 * prop_n, digits = 1, format = "f"),"%")),
-              size = text_size) +
-    geom_col(aes(color = RP2DAcceptable,
-                 size = RP2DAcceptable),
-             fill = "#FFFFFF00") +
-    facet_grid(scenario ~ design_label, scales = "free_y",switch="both") +
-    scale_y_reverse(labels = NULL, expand = expand_scale(add = 0.01)) +
-    scale_x_continuous(expand = expand_scale(add = 0.002)) +
-    scale_fill_manual(values = outcome_colors) +
-    scale_color_manual(values = c("#FFFFFF00","black"), labels = c("No", "Yes")) +
-    scale_size_manual(values = c(0.5, 0.75), labels = c("No", "Yes")) +
-    labs(x="Design",
-         y="",
-         color = "Good\nOutcome",
-         size = "Good\nOutcome",
-         fill = "Outcome") +
-    guides(color = guide_legend(nrow = 1),
-           fill = guide_legend(nrow = 1)) +
-    theme(text = element_text(size = 10),
-          legend.position = "top",
-          legend.text = element_text(size = legend_text_size),
-          legend.title = element_text(size = legend_text_size),
-          legend.margin = margin(t = 0, r = 8, b = 0, l = 0, unit = "pt"),
-          legend.spacing = unit(1,units = "pt"),
-          strip.text.x = element_text(margin = margin(t = 2, r = 0, b = 2, l = 0, unit = "pt")),
-          axis.line = element_blank(),
-          axis.text = element_blank(),
-          axis.ticks = element_blank(),
-          axis.title.y = element_blank(),
-          panel.background = element_blank(),
-          panel.border = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          plot.background = element_blank());
-    subplot <- list(myplot)
-    design_plot <- c(design_plot, subplot)
-    rm(list=c("myplot", "subplot"))
+      subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
+      myplot =
+        ggplot(data = subdat,
+               aes(x = 1,
+                   y = prop_n,
+                   group = interaction(RP2DAcceptable, RP2DCode))) +
+        geom_bar(aes(fill = RP2DCode),
+                 stat = "identity",
+                 color = NA) +
+        geom_text(data = filter(subdat, prop_n > min_prop_to_write),
+                  aes(x = 1,
+                      y = text_height,
+                      label = paste0(formatC(100 * prop_n, digits = 1, format = "f"),"%")),
+                  size = text_size) +
+        geom_col(aes(color = RP2DAcceptable,
+                     size = RP2DAcceptable),
+                 fill = "#FFFFFF00") +
+        facet_grid(scenario ~ design_label, scales = "free_y",switch="both") +
+        scale_y_reverse(labels = NULL, expand = expand_scale(add = 0.01)) +
+        scale_x_continuous(expand = expand_scale(add = 0.002)) +
+        scale_fill_manual(values = outcome_colors) +
+        scale_color_manual(values = c("#FFFFFF00","black"), labels = c("No", "Yes")) +
+        scale_size_manual(values = c(0.5, 0.75), labels = c("No", "Yes")) +
+        labs(x="Design",
+             y="",
+             color = "Good\nOutcome",
+             size = "Good\nOutcome",
+             fill = "Outcome") +
+        guides(color = guide_legend(nrow = 1),
+               fill = guide_legend(nrow = 1)) +
+        theme(text = element_text(size = 10),
+              legend.position = "top",
+              legend.text = element_text(size = legend_text_size),
+              legend.title = element_text(size = legend_text_size),
+              legend.margin = margin(t = 0, r = 8, b = 0, l = 0, unit = "pt"),
+              legend.spacing = unit(1,units = "pt"),
+              strip.text.x = element_text(margin = margin(t = 2, r = 0, b = 2, l = 0, unit = "pt")),
+              axis.line = element_blank(),
+              axis.text = element_blank(),
+              axis.ticks = element_blank(),
+              axis.title.y = element_blank(),
+              panel.background = element_blank(),
+              panel.border = element_blank(),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              plot.background = element_blank());
+      subplot <- list(myplot)
+      design_plot <- c(design_plot, subplot)
+      rm(list=c("myplot", "subplot"))
     }
   }
   design_plot[[1]] <- NULL
@@ -399,7 +399,7 @@ twostage_results <- function(files = NULL,
     patient_summary %>%
     mutate(design_label =
              factor(design,
-                    levels = unique(design)[order(unique(design))],
+                    levels = unique(design),
                     labels = des_lab,
                     ordered = T),
            scenario =
@@ -416,9 +416,9 @@ twostage_results <- function(files = NULL,
   generating_params <- as.data.frame(generating_params)
 
   prop_accept <- left_join(patient_summary, generating_params, by=c("scenario", "dose_num")) %>%
-                group_by(scenario, design_label, array_id, sim_id) %>%
-                summarize(total = n(), ataccept = sum(is_acceptable)) %>%
-                mutate(prop_acc = ataccept/total)
+    group_by(scenario, design_label, array_id, sim_id) %>%
+    summarize(total = n(), ataccept = sum(is_acceptable)) %>%
+    mutate(prop_acc = ataccept/total)
 
   samp_plot <- ggplot(data=trial_summary, aes(x=scenario, y = n_total_enrolled, fill=design_label)) +
     geom_boxplot(color="black", lwd=0.2, position = position_dodge2(padding=0.3)) +
@@ -447,8 +447,8 @@ twostage_results <- function(files = NULL,
   )
 
   results <- list(
-              tables = tables,
-              plots = plots
+    tables = tables,
+    plots = plots
   )
 
   return(results)

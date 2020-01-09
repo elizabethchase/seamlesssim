@@ -35,7 +35,7 @@
 #' module. Each list must have one entry named "name" to indicate the choice of module, and
 #' also a value for every argument that is specific to that module. See the vignette for
 #' examples.
-#' @param stan_args A list containing eight named elements for the Bayesian isotonic regression. 
+#' @param stan_args A list containing eight named elements for the Bayesian isotonic regression.
 #' For users without familiarity with STAN, stan_args can be left as NA (the default), and the defaults will all
 #' be used. Alternatively, users can modify any/all of these arguments, leaving the others as defaults
 #' or NA:
@@ -138,6 +138,15 @@ twostage_simulator = function(array_id = 1,
   stopifnot("list" %in% class(design_list));
   if(is.null(design_labels)) {design_labels = 1:length(design_list);}
   stopifnot(near(length(design_labels), length(design_list)));
+  if(primary_objectives$tox_target > 1 | primary_objectives$tox_target < 0){
+    warning("tox_target in primary_objectives is outside of [0,1]")
+  }
+  if(primary_objectives$tox_delta_no_exceed > (1-primary_objectives$tox_target) | primary_objectives$tox_delta_no_exceed < 0){
+    warning("tox_delta_no_exceed in primary_objectives is outside of [0,1-tox_target]")
+  }
+  if(primary_objectives$eff_target > 1 | primary_objectives$eff_target < 0){
+    warning("eff_target in primary_objectives is outside of [0,1]")
+  }
 
   # + Dose-Efficacy curves----
   #Format true dose-efficacy curves, which are allowed to differ [in truth] between stage 1 ("escalation") and stage 2 ("expansion");
@@ -153,6 +162,12 @@ twostage_simulator = function(array_id = 1,
   if(!near(length(dose_outcome_curves[["tox_curve"]]),length(dose_outcome_curves[["eff_curve"]]))) {
     stop("The vectors 'tox_curve' and 'eff_curve', which are elements of 'dose_outcome_curves', must have the same length");
   }
+  if(any(dose_outcome_curves$tox_curve > 1) | any(dose_outcome_curves$tox_curve < 0)){
+    warning("tox_curve has probabilities outside of [0, 1]")
+  }
+  if(any(dose_outcome_curves$eff_curve > 1) | any(dose_outcome_curves$eff_curve < 0)){
+    warning("eff_curve has probabilities outside of [0, 1]")
+  }
 
   for(curr_stage in c("stage1","stage2")) {
     #The same true efficacy curve applies to each stage of the trial unless a named element 'eff_curve_stage2'
@@ -162,6 +177,9 @@ twostage_simulator = function(array_id = 1,
     } else if("eff_curve_stage2" %in% names(dose_outcome_curves)) {
       if(!near(length(dose_outcome_curves[["eff_curve"]]),length(dose_outcome_curves[["eff_curve_stage2"]]))) {
         stop("The vectors 'eff_curve' and 'eff_curve_stage2', which are elements of 'dose_outcome_curves', must have the same length");
+      }
+      if(any(dose_outcome_curves$eff_curve_stage2 > 1) | any(dose_outcome_curves$eff_curve_stage2 < 0)){
+        warning("eff_curve_stage2 has probabilities outside of [0, 1]")
       }
       curr_efficacy_curve = dose_outcome_curves[["eff_curve_stage2"]];
     }
@@ -554,7 +572,7 @@ twostage_simulator = function(array_id = 1,
   if(any(design_description[,"module2"] == "bayes_isoreg") ||
      any(design_description[,"module5"] == "bayes_isoreg")) {
     #Fill in STAN default parameters
-    
+
     if (is.na(stan_args)){
       stan_args <- list(
         n_mc_warmup = 1e3,
@@ -584,7 +602,7 @@ twostage_simulator = function(array_id = 1,
       stan_args$ntries <- 2
     }
   }
-  
+
   store_module1_dat =
     store_stage1_estMTD =
     store_stage1_enrollment =
@@ -1066,9 +1084,10 @@ twostage_simulator = function(array_id = 1,
                                  second_stage_start_after = Inf,
                                  first_stage_label = 2,
                                  sim_specific_start_id = stage1_enrollment + 1,
-                                 sim_specific_prior = curr_design[["module4"]]$skeleton,
+                                 sim_specific_prior = matrix(rep(curr_design[["module4"]]$skeleton, n_sim), nrow=n_sim,
+                                                             byrow=TRUE),
                                  sim_specific_x0 = stage1_RP2D,
-                                 sim_specific_scale = curr_design[["module4"]]$beta_scale);
+                                 sim_specific_scale = rep(curr_design[["module4"]]$beta_scale, n_sim));
 
           module4_dat = data.frame(foo[["all_results"]]);
           stage2_estMTD = foo[["first_stage_estMTD"]];
