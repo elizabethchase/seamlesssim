@@ -1,17 +1,13 @@
 #' S3 print method for titesim_phil
 #'
-#' titesim_phil is the simulator function for a tite-crm trial. Thus, the user provides as input
-#' both the design elements as well as the true, dose-toxicity curve that is generally unknown in
-#' the real world. The simulator runs a certain number of simulated trials, creating data according to the
-#' dose-toxicity curve and making assignments according to the titecrm model. Various operating charateristics
-#' are reported. This function is meant to be called in the context of twostage_simulator rather than by the
-#' user directly.
+#' print.philsim prints the results from titesim_phil, the simulator function
+#' for a tite-crm trial.
 #'
 #' @param x An object of type titesim_phil, outputted from titesim_phil.
 #' @param dgt Number of digits for output rounding. Default value is 3.
 #' @param patient.detail Should patient-level information be provided, or only summary data?  Default is patient-level,
 #' indicated by TRUE. For only summary data, use FALSE.
-#' @param ... list of additional arguments. currently the following are implemented:
+#' @param ... List of additional arguments. Currently the following are implemented:
 #' @return Printed output from titesim_phil.
 #' @import dfcrm
 #' @export

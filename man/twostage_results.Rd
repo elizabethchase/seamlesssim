@@ -52,18 +52,22 @@ tables contains:
 }
 plots contains:
 \describe{
-   \item{gen_param_plot}{This is the same information as in generating_params_for_display, but in
-   plot form.}
+   \item{gen_param_plot}{This is a list of plots providing the same information as in generating_params_for_display.
+   If the number of designs under consideration exceeds design_per_page or the number of
+   scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
+   first plot, we would run: results$plots$gen_param_plot[[1]] and so on for further plots.}
    \item{acc_dose_rec_plot}{This is a plot giving which proportion of trials for each design and
    scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation
-   at all.}
+   at all. If the number of designs under consideration exceeds design_per_page or the number of
+   scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
+   first plot, we would run: results$plots$acc_dose_rec_param_plot[[1]] and so on for further plots.}
    \item{n_patients_plot}{This is a boxplot of the number of patients enrolled for each design and
    scenario combination across the different simulated trials.}
    \item{n_patients_RP2D_plot}{This is a boxplot of the number of patients who received the final
    recommended dose for each design and scenario combination across the different simulated trials.
    Note that the final recommended dose may not be safe or effective--this is merely a measure of
    how much patient data the design will yield for the final dose it recommends.}
-   \item{prop_patients_acep_plot}{This is a boxplot of the number of patients who received an
+   \item{prop_patients_accep_plot}{This is a boxplot of the number of patients who received an
    acceptable dose (a dose meeting the toxicity and efficacy standards, if not the best dose) for
    each design and scenario combination across the different simulated trials.}
 }

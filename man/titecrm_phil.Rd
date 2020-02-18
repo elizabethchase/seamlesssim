@@ -37,7 +37,8 @@ of toxicity for each dose. More commonly called the skeleton.}
 
 \item{target}{A scalar between 0 and 1 giving the targeted rate of DLT.}
 
-\item{tox}{An integer vector of 0s and 1s the same length as the current number of patients enrolled.}
+\item{tox}{An integer vector of 0s and 1s the same length as the current number of patients enrolled,
+indicating whether or not that patient had a toxicity.}
 
 \item{level}{An integer vector of dose numbers indicating dose assignments for all currently
 enrolled patients. Same length as tox.}
@@ -46,44 +47,52 @@ enrolled patients. Same length as tox.}
 to the lengths of tox and level.}
 
 \item{weights}{A numeric vector of weights between 0 and 1 that control the likelihood
-contribution for each patient. Same length as tox.}
+contribution for each patient, in the situation where different patients are observed for different
+lengths of time. Same length as tox.}
 
-\item{followup}{A positive numeric value indicating the number of units of time that each
-patient has been followed.}
+\item{followup}{A positive numeric vector indicating the number of units of time that each
+patient has been followed; same length as tox.}
 
-\item{entry}{Positive numeric vectors of entry and exit times; alternative to calculating followup.}
+\item{entry}{Positive numeric vectors of entry and exit times; alternative to calculating followup.
+Same length as tox.}
 
-\item{exit}{Positive numeric vectors of entry and exit times; alternative to calculating followup.}
+\item{exit}{Positive numeric vectors of entry and exit times; alternative to calculating followup.
+Same length as tox.}
 
 \item{obswin}{A positive numeric value indicating the number of units of time over which DLTs are defined.}
 
 \item{scheme}{A string indicating the weighting scheme for patients who are free of DLT but
-have not completed followup. Must be either "polynomial", "logistic", or "adaptive".}
+have not completed followup. Must be either "polynomial", "logistic", or "adaptive". "polynomial" is the
+default.}
 
-\item{scheme_args}{A named list with elements "scheme power" (if "scheme" = "polynomial"),
+\item{scheme_args}{A named list with elements "scheme_power" (if "scheme" = "polynomial"),
 "scheme_int" and "scheme_slope" (if "scheme" = "logistic"), or no elements (if "scheme" = "adaptive").}
 
-\item{conf.level}{A number between 0 and 1; the confidence limits to report.}
+\item{conf.level}{A number between 0 and 1; the confidence limits to report. Default is 0.9.}
 
-\item{dosename}{From titecrm documentation: "A vector containing the names of the regimens and
-doses used. The length of dosename must be equal to that of prior".}
+\item{dosename}{A vector the same length as prior giving a list of names/identifiers for the different
+doses.}
 
-\item{include}{From titecrm documentation: "A subset of patients included in the dose calculation".}
+\item{include}{From titecrm documentation: "A subset of patients included in the dose calculation".
+Default is to include all patients.}
 
-\item{pid}{From titecrm documentation: "Patient ID provided in the study. Its length must be
-equal to that of level".}
+\item{pid}{A vector of length n giving each patient's identifier. Default is to assign each patient
+an identifier from 1 to n.}
 
-\item{method}{A string indicating the method for fitting the model. The original titesim
+\item{method}{A string indicating the method for fitting the model. The original titecrm
 function allows "mle" or "bayes"; titecrm_phil only includes "bayes".}
 
 \item{model}{A string indicating the type of model. The original titesim function allows
 "empiric" (sometimes known as the power model) or "logistic"; titecrm_phil only includes "empiric".}
 
-\item{var.est}{A logical value indicating if the posterior variance of model parameters should be returned.}
+\item{var.est}{A logical value indicating if the posterior variance of model parameters should be returned.
+Default is TRUE.}
 
-\item{scale}{A positive numeric value indicating the prior standard deviation on the parameter beta.}
+\item{scale}{A positive numeric value indicating the prior standard deviation on the parameter beta.
+Default is the square root of 1.34.}
 
-\item{intcpt}{A fixed numeric value of the intercept parameter when using the "logistic" model.}
+\item{intcpt}{A fixed numeric value of the intercept parameter when using the "logistic" model.
+Default is 3.}
 
 \item{model.detail}{From titecrm documentation: "If FALSE, the model content of an mtd
 object will not be displayed. Default is TRUE".}
@@ -111,9 +120,10 @@ tite, dosescaled, and patient.detail as described above, along with:
 }
 }
 \description{
-This is a function that makes dose recommendations for the next patient given the inputed data and
-the design parameters. It returns estimates of the dose-toxicity curve under the one-parameter
-model and prints out a dose recommendation. IMPORTANT: NO SAFETY CONSTRAINTS ARE IMPLEMENTED
+This is a function that makes dose recommendations for the next patient given the inputted data and
+the design parameters according to the continual reasssessment method. At the end of the trial, it returns
+estimates of the dose-toxicity curve under a one-parameter model where dose is the only predictor
+and prints out a dose recommendation. IMPORTANT: NO SAFETY CONSTRAINTS ARE IMPLEMENTED
 IN THIS FUNCTION. IT ONLY PRINTS OUT THE MODEL-BASED DOSE ASSIGNMENT FOR THE NEXT PATIENT;
 IT IS UP TO THE USER TO  DETERMINE WHETHER ALL SAFETY CONSTRAINTS WOULD BE SATISFIED BY ANY
 GIVEN DOSE ASSIGNMENT AND TO REDUCE THE ASSIGNMENT AS NECESSARY. This function is based upon

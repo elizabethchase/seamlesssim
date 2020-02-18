@@ -1,21 +1,18 @@
 #' Function to simulate a two-stage CRM
 #'
 #' This is a general purpose simulator for the CRM as used by the function twostage_simulator.
-#' It is intended to be called from twostage_simulator rather than by the user directly. In
-#' contrast to sim_3pl3 and sim_empiric_dec, which require that the user specify which stage of
-#' the trial is being simulated, this function runs both stages at once. Note also that the term
-#' "two stage crm" has been used with several different meanings of the word "stage." We use "stage"
-#' here in the same way as in the manuscript, i.e. stage1 = {module1,module2}, stage2 =
-#' {module3,module4,module5}.
+#' If desired, users can simulate a two-stage CRM (two rounds of toxicity assignment), rather
+#' than a one-stage CRM.
 #'
 #' @param n_sim How many simulated trials to conduct? (positive integer)
 #' @param titecrm_args This is a named list providing all of the arguments that the function
-#' titesim_phil expects. Three of its arguments, (prior, x0, and scale) can be provided separately
-#' via the sim_specific_X versions, because in some circumstances they may vary between each simulated trial.
-#' @param second_stage_start_after A positive integer indicating at what point should the trial
-#' label patients as coming from the first stage to coming from the second stage.
-#' @param first_stage_label A numeric value that can be arbitrary but is most logically kept at
-#' its default value of 1.
+#' titesim_phil expects. See titesim_phil documentation for more information on these required components.
+#' If the arguments prior, x0, and scale vary between simulations, then these arguments should be specified
+#' separately using sim_specific_prior, sim_specific_x0, and sim_specific_scale, respectively.
+#' @param second_stage_start_after If simulating a two-stage CRM, this positive integer indicates after how
+#' many patients should we switco the second stage. If a one-stage CRM is desired, second_stage_start_after
+#' should equal n in titecrm_args.
+#' @param first_stage_label A numeric value to be appended to all patients who belonged to the first stage.
 #' @param sim_specific_start_id A positive integer vector containing the starting subject id for
 #' each simulated trial. If provided, it must be as long as n_sim.
 #' @param sim_specific_prior If provided, this is a positive numeric matrix with number of rows
@@ -23,24 +20,28 @@
 #' Each row gives the trial-specific skeleton to use. If not provided, then a common skeleton is used,
 #' taken from the value of titecrm_args$prior.
 #' @param sim_specific_x0 If provided, this is a non-negative integer vector with length equal to n_sim
-#' giving the starting dose level for each trial.
+#' giving the starting dose level for each trial. If not provided, then a common starting dose is used,
+#' taken from the value of titecrm_args$x0.
 #' @param sim_specific_scale If provided, this is a positive numeric vector with length equal to
 #' n_sim giving the trial-specific value of the prior scale for beta in the power model
-#' p = skeleton ^ exp(beta)
-#' @param seed A positive integer seed for use prior to starting the simulations
+#' p = skeleton ^ exp(beta). If not provided, then a common scale is used across simulations, taken from
+#' titecrm_args$scale.
+#' @param seed A positive integer seed for use prior to starting the simulations.
 #' @return The function returns the a named list containing:
 #' \describe{
-#'   \item{all_results}{A matrix giving the individual patient outcomes from all simulated trials}
+#'   \item{all_results}{A matrix giving the individual patient outcomes from all simulated trials.}
 #'   \item{first_stage_estMTD}{A vector as long as the number of simulated trials giving an integer
-#' value corresponding to the estimated MTD from each trial as of the end of the first stage}
+#' value corresponding to the estimated MTD from each trial as of the end of the first stage. A value of 0
+#' indicates that all dose levels were estimated to be unsafe.}
 #'   \item{second_stage_estMTD}{The same result as first_stage_estMTD but at the end of the
-#' second stage; for both, a value of 0 indicates that all dose levels were estimated to
-#' be unsafe}
-#'   \item{first_stage_enrollment, second_stage_enrollment}{Vectors as long as the number of
-#' simulated trials, giving the actual enrollment for that trial up to the end of the stage. So
+#' second stage.}
+#'   \item{first_stage_enrollment}{A vector as long as the number of
+#' simulated trials, giving the actual enrollment for that trial up to the end of the first stage.}
+#'   \item{second_stage_enrollment}{A vector as long as the number of
+#' simulated trials, giving the actual enrollment for that trial up to the end of the second stage. So
 #' the second stage result will include the enrollment from the first stage (and equal it if that
 #' simulated trial stopped in the first stage).}
-#'   \item{seed}{The seed that was used by the function}
+#'   \item{seed}{The seed that was used by the function.}
 #' }
 #' @importFrom dplyr summarise near %>% group_by filter select
 #' @importFrom data.table first last

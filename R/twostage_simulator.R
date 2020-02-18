@@ -1,8 +1,12 @@
 #' This function simulates a specified number of seamless trials for each design configuration
 #' provided.
 #'
-#' For more information on design options and seamless trials, please see the vignette and Boonstra
-#' (2020) on Arxiv.
+#' twostage_simulator is the primary workhorse of seamlesssim. It simulates complex seamless Phase I/II
+#' oncology trials as discussed in the article by Boonstra et al. (Arxiv, 2020). It allows clinical
+#' trialists to determine operating characteristics of trials that assess both
+#' toxicity and efficacy with a range of different design and analytic approaches. For more detailed
+#' information, see Boonstra et al. (Arxiv, 2020) and the vignette. The following tables summarize
+#' all of the options for each module:
 #'
 #' @param array_id A positive integer identifier that will be appended as a column, without
 #' modification, to all results. This is meant to be helpful to the user when calling this

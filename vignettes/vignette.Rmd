@@ -21,19 +21,18 @@ library(cowplot)
 
 \texttt{seamlesssim} is an R package to simulate seamless clinical trials (usually in the oncology setting) and assess some basic operating features of these trials. A seamless trial is one in which the trial aims to estimate both the maximum tolerated dose (MTD) for some treatment and the efficacy of that treatment at the MTD. After completing a seamless trial, trial sponsors may proceed to Phase III with more confidence about what the efficacy of the treatment will be. By using a seamless framework that blends Phases I and II, sponsors may be able to save time, money, and patient resources. 
 
-In @boonstra2020, we gave a broad definition of seamless trials and made some recommendations about features of good seamless trials. In our conception of the seamless framework, we separate the trial into 5 modules. Module 1 provides a first estimate of dose toxicity. In Module 2, efficacy is estimated at the MTD from Module 1. In Module 3, researchers may make changes to trial design based on the results from Modules 1 and 2 (i.e. adding new doses to consider, changing study population, etc.). In Module 4, toxicity is re-estimated (either with the new design changes, or to obtain a more stable estimate). Finally, in Module 5, efficacy is re-estimated. Although we consider 5 modules, only Module 1 is "mandatory." If Modules 2-5 are skipped, the seamless trial reduces to a Phase I trial; if Modules 3-5 are skipped; the seamless trial is a standard Phase I/II trial. Other combinations and configurations can be used to encapsulate most of the Phase I, II, and I/II designs that we have seen in the literature.
+In @boonstra2020, we gave a broad definition of seamless trials and made some recommendations about features of good seamless trials. In our conception of the seamless framework, we separate the trial into 5 modules. Module 1 provides a first estimate of dose toxicity. In Module 2, efficacy is estimated at the MTD from Module 1. In Module 3, researchers may make changes to trial design based on the results from Modules 1 and 2 (i.e. adding new doses to consider, changing study population, etc.). In Module 4, toxicity is re-estimated (either with the new design changes, or to obtain a more stable estimate). Finally, in Module 5, efficacy is re-estimated. Although we consider 5 modules, only Module 1 is mandatory. If Modules 2-5 are skipped, the seamless trial reduces to a Phase I trial; if Modules 3-5 are skipped; the seamless trial is a standard Phase I/II trial. Other combinations and configurations can be used to encapsulate most of the Phase I, II, and I/II designs that we have seen in the literature.
 
 We consider several ways to estimate toxicity and efficacy within each of these modules. \texttt{seamlesssim} considers 4 different approaches for estimating toxicity in Modules 1 and 4 (the continual reassessment method or CRM; the 3+3 design; a de-escalation scheme; and a fixed dose assignment scheme) and 6 different approaches for estimating efficacy in Modules 2 and 5 (a Bayesian interval test; a Bayesian isotonic regression; an inverted score test; a minimum number of responders threshold; a minimum percentage of responders threshold; or no efficacy analysis). For more information on these approaches and their strengths and weaknesses, please see @boonstra2020. Here, we demonstrate how to specify designs and trial features in \texttt{seamlesssim} in order to simulate a trial with those characteristics, and then how to generate some basic summary statistics of the simulated trials. 
 
 ## Installation
 
 First, we need to install the package by running \texttt{install.packages("seamlesssim")}, then load it into R by running \texttt{library(seamlesssim)}. To call up documentation on \texttt{seamlesssim}, we can use the ? operator to read more about functions. For example, we could run:
-```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=FALSE}
-library(seamlesssim)
-```
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
+library(seamlesssim)
 ?sim_empiric_dec
 ```
+
 to obtain information on the \texttt{sim_empiric_dec} function. The same could be done for all of the functions in the package.
 
 ## Specifying Designs and Scenarios
@@ -60,9 +59,11 @@ tox_eff_curves <- list(
 )
 ```
 
+To interpret one of these: in scenario 1, we believe that dose 1 has 8\% toxicity and 10\% efficacy, while dose 5 has 35\% toxicity and 38\% efficacy.
+
 Finally, we need to specify which designs we want to consider, and we provide the necessary parameters for each design we're considering. We will consider 3 different designs. They are:
 
-1. Our first design uses 3+3 in Module 1, and then uses a Bayesian interval test in Module 2. For the interval test, it sets its prior parameters as estimating that all 5 doses will have 10\% efficacy (\texttt{prior}\_\texttt{mean}), but its confidence in this prior is low--\texttt{prior}\_\texttt{n}\_\texttt{per} is only 1. Its threshold is \texttt{prob}\_\texttt{threshold} = 30\%, so in order for the trial to proceed, the posterior probability of any of the doses meeting the efficacy threshold of 20\% must be at least 30\%. In Module 4, it then uses a dose-deescalation scheme in 35 patients (\texttt{n} = 35) to continue checking toxicity, and after 10 patients (\texttt{first}\_\texttt{patient}\_\texttt{look} = 10) it will check to see if toxicity exceeds 33\% (\texttt{thresh}\_\texttt{decrease} = 0.33); if so, it will de-escalate the dose. Finally, the design finishes off in Module 5 by using a Bayesian interval test to check efficacy at the end of the trial, with the same prior as was used in Module 2, but now with a higher posterior probabiltiy threshold of 38\%, and using all of the data from Modules 1-5.  
+1. Our first design uses 3+3 in Module 1, and then uses a Bayesian interval test in Module 2. For the interval test, it sets its prior parameters as estimating that all 5 doses will have 10\% efficacy (\texttt{prior}\_\texttt{mean}), but its confidence in this prior is low--\texttt{prior}\_\texttt{n}\_\texttt{per} is only 1. Its threshold is \texttt{prob}\_\texttt{threshold} = 30\%, so in order for the trial to proceed, the posterior probability of any of the doses meeting the efficacy threshold of 20\% must be at least 30\%. In Module 4, it then uses a dose-deescalation scheme in 35 patients (\texttt{n} = 35) to continue checking toxicity, and after 10 patients (\texttt{first}\_\texttt{patient}\_\texttt{look} = 10) it will check to see if toxicity exceeds 33\% (\texttt{thresh}\_\texttt{decrease} = 0.33). If so, it will de-escalate the dose. Finally, the design finishes off in Module 5 by using another Bayesian interval test to check efficacy at the end of the trial, with the same prior as was used in Module 2, but now with a higher posterior probabiltiy threshold of 38\%, and using all of the data from Modules 1-5.  
 
 2. Our second design uses a CRM to assign doses to 25 patients in Module 1. It sets the CRM skeleton and scale parameters (for more information, see @boonstra2020 and @dfcrm2019), and requires that at least 3 patients be assigned to each dose before escalation (\texttt{dose}\_\texttt{cohort}\_\texttt{size} = 3), and that at least 6 patients receive doses before the trial can stop for toxicity (\texttt{earliest}\_\texttt{stop} = 6). It uses a Bayesian interval test to assess efficacy in Module 2, with the same prior as in Design 1, but with a slightly higher posterior probability threshold of 35\%. In Module 4, we continue the CRM from Module 1 in an additional 35 patients, to continue to assess toxicity. Finally, in Module 5, we do the same Bayesian interval test as in Module 2, but now using all of the data from Modules 1-5, and with a much higher posterior probability threshold of 75\%: in order to pass our efficacy standard, the posterior probability of the MTD meeting our efficacy threshold of 20\% must be at least 75\%. 
 
@@ -209,9 +210,9 @@ Each of these function calls will result in a list with many elements. Of these 
 
 3. \texttt{sim}\_\texttt{data}\_\texttt{stage2}. The same as \texttt{sim}\_\texttt{data}\_\texttt{stage1}, but at the end of Stage 2 (Modules 1-5).
 
-For users with a good grasp of data management and plotting techniques in R, these data can be used to create most summary statistics and plots that would be useful in a trial protocol. However, for users who are less confident in R (or just to get a quick synopsis of the simulation results before doing more personalized descriptives), it may be useful to use the \texttt{twostage}\_\texttt{results} function, which provides some basic plots and tables from the three datasets described above. 
+For users with a good grasp of data management and plotting techniques in R, these data can be used to create most summary statistics and plots that would be useful in a trial protocol. However, for users who are less confident in R (or who want a quick synopsis of the simulation results before doing more personalized descriptives), it may be useful to use the \texttt{twostage}\_\texttt{results} function, which provides some basic plots and tables from the three datasets described above. 
 
-To use the function, we can do one of two things. For a large number of files, we need to save the raw output from the \texttt{twostage}\_\texttt{simulator} function as .Rds files in their own dedicated folder. If there are other \texttt{.Rds} files in the folder that weren't produced by \texttt{twostage}\_\texttt{simulator}, the function will not work properly. For a smaller number of files (and what we do here), we leave all of the files in the workspace and input them to \texttt{twostage}\_\texttt{results} as a character vector giving their names. We include a comment giving example code for how we would save the data to a folder and then call it in \texttt{twostage}\_\texttt{results} for interested users. 
+To use the function, we can do one of two things. For a large number of files, we need to save the raw output from the \texttt{twostage}\_\texttt{simulator} function as \texttt{.Rds} files in their own dedicated folder. If there are other \texttt{.Rds} files in the folder that weren't produced by \texttt{twostage}\_\texttt{simulator}, the function will not work properly. For a smaller number of files (and what we do here), we leave all of the files in the workspace and input them to \texttt{twostage}\_\texttt{results} as a character vector giving their names. We include a comment giving example code for how we would save the data to a folder for interested users. 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 #How to save the results to myfolder and then read it into twostage_results:
 #saveRDS(mysims_scen1, file = "myfolder/scen1.Rds")
@@ -222,6 +223,7 @@ To use the function, we can do one of two things. For a large number of files, w
  #                            primary_objectives = primary_objectives,
  #                            design_labels = design_labels)
 
+#How to read the results into twostage_results from the workspace:
 myfiles <- c("mysims_scen1", "mysims_scen2", "mysims_scen3")
 myresults <- twostage_results(files = myfiles,
                              filepath = FALSE,
@@ -239,9 +241,9 @@ From \texttt{twostage}\_\texttt{results}, we get a list containing the items \te
 
 And \texttt{plots} contains:
 
-4. \texttt{gen}\_\texttt{params}\_\texttt{plot}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in table form.
+4. \texttt{gen}\_\texttt{params}\_\texttt{plot}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in table form. If there are fewer than \texttt{design_per_page} designs and \texttt{scen_per_page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-5. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a plot giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all.
+5. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a list of plots giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all. If there are fewer than \texttt{design_per_page} designs and \texttt{scen_per_page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
 6. \texttt{n}\_\texttt{patients}\_\texttt{plot}. This is a boxplot of the number of patients enrolled for each design and scenario combination across the different simulated trials.
 
@@ -254,8 +256,10 @@ Although we could print the results of \texttt{twostage}\_\texttt{results} as on
 kable(myresults$tables$acc_dose_rec_table, caption="Proportion of Trials That 
       Select Acceptable Dose")
 
-plot_grid(myresults$plots$acc_dose_rec_plot, myresults$plots$gen_params_plot, 
-          ncol = 2, nrow=1, rel_widths = c(5,3))
+#We use acc_dose_rec_plot[[1]], gen_params_plot[[1]] here to call the first element of each
+#list of plots and then place them side by side:
+plot_grid(myresults$plots$acc_dose_rec_plot[[1]], myresults$plots$gen_params_plot[[1]], 
+          ncol = 2, nrow=1, rel_widths = c(5,3)) 
 
 kable(myresults$tables$mean_patients_table, caption="Mean Number of Patients Enrolled")
 ```

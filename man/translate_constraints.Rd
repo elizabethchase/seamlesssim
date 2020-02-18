@@ -7,24 +7,28 @@
 translate_constraints(prior_mean, prior_n_per = 1)
 }
 \arguments{
-\item{prior_mean}{A numeric vector comprised of increasing values between 0 and 1. This is a vector 
-giving the desired prior means of the efficacy probabilities.}
+\item{prior_mean}{A numeric vector comprised of increasing values between 0 and 1. This is a vector
+giving the prior means of the efficacy probabilities. It should be the same length as the number of doses
+under consideration.}
 
-\item{prior_n_per}{A positive numeric scalar giving the effective prior sample size.}
+\item{prior_n_per}{A positive numeric scalar giving the effective prior sample size. This can be interpreted
+as how confident we are in the prior_mean: how many patients were observed to obtain the estimate of
+the prior_mean? If little information is available, prior_n_per should be 1--only 1 patient was observed
+to have this toxicity percentage at this dose. The default is 1.}
 }
 \value{
-The function returns vectors of the shape and rate parameters of gamma distributions that the 
-function "bayesian_isotonic()" requires. Literally, what is returned is a named list:
+The function returns vectors of the shape and rate parameters of gamma distributions that the
+function "bayesian_isotonic()" requires. In a named list:
 \describe{
   \item{gamma_shape}{The set of shape parameters to provide to the underlying gamma distribution}
-  \item{gamma_rate}{The set of rate parameters. In order for the set of means (mu_j) to be both 
+  \item{gamma_rate}{The set of rate parameters. In order for the set of means (mu_j) to be both
   marginally distributed as beta random variables and isotonically ordered, gamma_rate must be
   identically equal to 1.}
 }
 }
 \description{
 This function translates a desired value for the prior mean and effective prior sample size of a
-set of probabilities that are assumed to be monotonically increasing in some arbitrary way into 
-a vector of shape and rate parameters such that each individual probability is marginally 
+set of monotonically increasing probabilities into
+a vector of shape and rate parameters such that each individual probability is marginally
 distributed as a beta random variable and the probabilities are ordered in an increasing fashion.
 }

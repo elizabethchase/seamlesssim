@@ -26,7 +26,7 @@ bayesian_isotonic(
 }
 \arguments{
 \item{data_grouped}{A data.frame or tibble that contain columns x (used as category
-labels), y (the number of successes or events), and n (the number of trials)}
+labels), y (the number of successes or events), and n (the number of trials).}
 
 \item{stan_args}{A named list of arguments to pass to the stan function. It should include the
 named elements:
@@ -42,8 +42,8 @@ For more information on these arguments, please see rstan documentation.}
 and 'n' will be ignored and draws will only be sampled from the prior
 distribution. Defaults to FALSE.}
 
-\item{conf_level}{Numeric, (0, 1). This level credible interval will be
-returned (in data_grouped) based upon the empirical quantiles. The default is 0.5.}
+\item{conf_level}{Numeric in (0, 1). This level credible interval will be
+returned based upon the empirical quantiles. The default is 0.5.}
 
 \item{conf_level_direction}{This is a string equal to 'both', 'upper',
 or 'lower' indicating the desired direction of the credible interval. The default is 'both'.}
@@ -51,21 +51,32 @@ or 'lower' indicating the desired direction of the credible interval. The defaul
 \item{verbose}{A logical value. If TRUE, then all posterior draws will be returned
 by the function. Defaults to FALSE.}
 
-\item{n_mc_warmup}{See documentation for twostage_simulator. The default here is 1000.}
+\item{n_mc_warmup}{A positive integer giving the number of desired warmup runs; the default is 1000.}
 
-\item{n_mc_samps}{See documentation for twostage_simulator. The default here is 2000.}
+\item{n_mc_samps}{A positive integer giving the number of additional samples to run
+after warmup is completed; the default is 2000.}
 
-\item{mc_chains}{See documentation for twostage_simulator. The default here is 4.}
+\item{mc_chains}{A positive integer indicating the number of chains to run in parallel,
+which will multiply the final number of samples; the default is 4.}
 
-\item{mc_thin}{See documentation for twostage_simulator. The default here is 1.}
+\item{mc_thin}{A positive integer indicating the number of iterations to thin by
+(increasing thinning will decrease the final number of samples); the default is 1.}
 
-\item{mc_stepsize}{See documentation for twostage_simulator. The default here is 0.1.}
+\item{mc_stepsize}{A numeric value between 0 and 1 that is passed to control
+in the call to stan() as the stepsize argument; the default is 0.1.}
 
-\item{mc_adapt_delta}{See documentation for twostage_simulator. The default here is 0.8.}
+\item{mc_adapt_delta}{A numeric value between 0 and 1 that is passed to control
+in the call to stan() as the adapt_delta argument; the default is 0.8.}
 
-\item{mc_max_treedepth}{See documentation for twostage_simulator. The default here is 15.}
+\item{mc_max_treedepth}{A positive integer passed to control in the call to stan()
+as the max_treedepth argument; the default is 15.}
 
-\item{ntries}{See documentation for twostage_simulator. The default here is 2.}
+\item{ntries}{A positive integer. The stan algorithm throws warnings about divergent
+transitions, which are indicative of an inability to fully explore the posterior space.
+Sometimes this number can be extremely large, which suggests that the fitted model needs
+to be reparametrized. However, in this case, divergent transitions seem to be sporadic.
+ntries indicates how many reruns of the algorithm should be tried when > 0 divergent
+transitions are encountered. The run with the fewest such transitions is kept. The default is 2.}
 
 \item{return_as_stan_object}{A logical value. If TRUE, then the function returns an
 object of class 'stanfit'. If FALSE, then a summary of results will be
@@ -79,19 +90,18 @@ This is useful for the initial compilation of the stan model. Otherwise, the fun
 named list containing the arguments:
 \describe{
    \item{data_grouped}{The provided argument of the same name but with more columns added
-that provide various summaries of the probabilities at each group level}
+that provide summaries of the efficacy probability for each row.}
    \item{conf_level, conf_level_direction}{Arguments provided by the user for the confidence
-   interval}
-   \item{stan_args}{The list of arguments that were passed to the stan function}
-   \item{accepted_divergences}{The number of divergent transitions from the model fit the results
-of which were actually returned}
+   interval.}
+   \item{stan_args}{The list of arguments that were passed to the stan function.}
+   \item{accepted_divergences}{The number of divergent transitions from the model.}
    \item{max_divergences}{The maximum observed number of divergent transitions from the ntries
-number of model fits that were attempted}
-   \item{rhat}{The largest value of the Gelman-Rubin diagnostic across all parameters}
-   \item{number_nan}{The number of draws that were 0/0, e.g. due to underflow}
+number of model fits that were attempted.}
+   \item{rhat}{The largest value of the Gelman-Rubin diagnostic across all parameters.}
+   \item{number_nan}{The number of draws that were 0/0, e.g. due to underflow.}
    \item{all_draws}{NA if verbose == FALSE, otherwise all_draws is a matrix of draws from the
-posterior distribution, which may be large}
-   \item{chain_run_times_secs, total_run_time_secs}{Length of time (seconds) for chain runs and total runs}
+posterior distribution, which may be large.}
+   \item{chain_run_times_secs, total_run_time_secs}{Length of time (seconds) for chain runs and total runs.}
 }
 }
 \description{

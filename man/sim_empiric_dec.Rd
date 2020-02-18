@@ -49,7 +49,7 @@ At a given dose level, at what point should the module_rule start taking action?
 ad-hoc way to prevent a scenario such as "The first patient experienced a DLT, therefore because
 all patients at this dose level have experienced a DLT, we should de-escalate."}
 
-\item{seed}{A positive integer seed for use prior to starting the simulations}
+\item{seed}{A positive integer seed for use prior to starting the simulations.}
 }
 \value{
 A named list with entries:

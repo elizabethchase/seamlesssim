@@ -55,7 +55,7 @@ module. Each list must have one entry named "name" to indicate the choice of mod
 also a value for every argument that is specific to that module. See the vignette for
 examples.}
 
-\item{stan_args}{A list containing eight named elements for the Bayesian isotonic regression. 
+\item{stan_args}{A list containing eight named elements for the Bayesian isotonic regression.
 For users without familiarity with STAN, stan_args can be left as NA (the default), and the defaults will all
 be used. Alternatively, users can modify any/all of these arguments, leaving the others as defaults
 or NA:
@@ -128,6 +128,10 @@ The function returns a named list with entries:
 }
 }
 \description{
-For more information on design options and seamless trials, please see the vignette and Boonstra
-(2020) on Arxiv.
+twostage_simulator is the primary workhorse of seamlesssim. It simulates complex seamless Phase I/II
+oncology trials as discussed in the article by Boonstra et al. (Arxiv, 2020). It allows clinical
+trialists to determine operating characteristics of trials that assess both
+toxicity and efficacy with a range of different design and analytic approaches. For more detailed
+information, see Boonstra et al. (Arxiv, 2020) and the vignette. The following tables summarize
+all of the options for each module:
 }

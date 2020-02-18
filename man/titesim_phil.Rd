@@ -2,7 +2,7 @@
 % Please edit documentation in R/titesim_phil.R
 \name{titesim_phil}
 \alias{titesim_phil}
-\title{Expanded version of the dfcrm::titesim function to incorporate some useful design elements of the 
+\title{Expanded version of the dfcrm::titesim function to incorporate some useful design elements of the
 time-to-event continual reassessment method}
 \usage{
 titesim_phil(
@@ -37,11 +37,11 @@ titesim_phil(
 )
 }
 \arguments{
-\item{PI}{Numeric vector with entries between 0 and 1 of true toxicity probabilities, assumed to match 
-with dose labels.}
+\item{PI}{Numeric vector with entries between 0 and 1 of true toxicity probabilities; assumed to match
+the order of the dose labels.}
 
-\item{prior}{Numeric vector with entries between 0 and 1 of anticipated probabilities, assumed to match 
-with dose labels. More commonly and accurately called the skeleton.}
+\item{prior}{Numeric vector with entries between 0 and 1 of anticipated toxicity probabilities, assumed to match
+the order of the dose labels. More commonly and accurately called the skeleton.}
 
 \item{target}{Scalar value between 0 and 1 giving the targeted rate of DLT.}
 
@@ -49,12 +49,12 @@ with dose labels. More commonly and accurately called the skeleton.}
 
 \item{x0}{A positive integer indicating the starting dose level.}
 
-\item{nsim}{A positive integer indicating the number of simulated dose levels to conduct.}
+\item{nsim}{A positive integer indicating the number of simulated trials to conduct.}
 
 \item{restrict}{A logical value. If TRUE, indicates that safety constraints should be enacted. There are four:
-(1) No skipping doses in escalation; (2) No escalation before followup of followup_b4_esc on at least one 
-patient at current or larger dose; (3) No assignment to dose with estimated DLT rate beyond no.exceed + 
-target; (4) Stopping trial altogether if at any point after patient earliest_stop the estimated DLT rate 
+(1) No skipping doses in escalation; (2) No escalation before followup of followup_b4_esc on at least one
+patient at current or larger dose; (3) No assignment to dose with estimated DLT rate beyond no.exceed +
+target; (4) Stopping trial altogether if at any point after patient earliest_stop the estimated DLT rate
 at all dose levels exceeds no.exceed + target.}
 
 \item{obswin}{A positive number indicating the number of units of time over which DLTs are defined.}
@@ -67,21 +67,21 @@ at all dose levels exceeds no.exceed + target.}
 
 \item{surv}{A string, either "uniform" or "exponential", denoting the time-to-DLT distribution.}
 
-\item{surv_rate}{A positive number. If surv is "exponential", this is the rate for the time-to-DLT 
+\item{surv_rate}{A positive number. If surv is "exponential", this is the rate for the time-to-DLT
 distribution.}
 
-\item{scheme}{A string indicating the weighting scheme for patients who are free of DLT but have not 
+\item{scheme}{A string indicating the weighting scheme for patients who are free of DLT but have not
 completed followup. Can be either "polynomial", "logistic", or "adaptive."}
 
-\item{scheme_args}{A named list with elements "scheme power" (if scheme = "polynomial"), "scheme_int" 
+\item{scheme_args}{A named list with elements "scheme power" (if scheme = "polynomial"), "scheme_int"
 and "scheme_slope" (if scheme = "logistic"), or no elements (if scheme = "adaptive").}
 
 \item{count}{A logical value; if TRUE, the progress of the simulations will be plotted.}
 
-\item{method}{A string indicating the method for fitting model. The original titesim function allows 
+\item{method}{A string indicating the method for fitting model. The original titesim function allows
 "mle" or "bayes"; here, only "bayes" is allowed.}
 
-\item{model}{A string indicating the type of model. The original titesim function allows "empiric" 
+\item{model}{A string indicating the type of model. The original titesim function allows "empiric"
 (sometimes known as the power model) or "logistic"; here, only "empiric" is allowed.}
 
 \item{intcpt}{A numeric value giving the intercept parameter when using the "logistic" model.}
@@ -92,17 +92,17 @@ and "scheme_slope" (if scheme = "logistic"), or no elements (if scheme = "adapti
 
 \item{conf.level}{A number between 0 and 1 indicating the confidence limits to report.}
 
-\item{no.exceed}{A positive number indicating by how much the toxicity rate can exceed the DLT threshold 
-before the dose is unacceptable. To be more clear, no dose will be assigned with estimated pr(DLT) > 
-target + no.exceed, and trial will stop altogether if this holds for dose level 1.}
+\item{no.exceed}{A positive number indicating by how much the toxicity rate can exceed the DLT threshold
+before the dose is unacceptable. To be more clear, no dose will be assigned with estimated pr(DLT) >
+target + no.exceed, and the trial will stop altogether if this holds for dose level 1.}
 
-\item{cohort.size}{A positive integer indicating the size of cohorts between successive queries of the 
+\item{cohort.size}{A positive integer indicating the size of cohorts between successive queries of the
 CRM model.}
 
 \item{first.cohort.only}{A logical value indicating if cohort.size applies only to the first cohort.}
 
-\item{n.at.MTD}{A positive integer which is the number of patients that should be at the estimated MTD 
-before the trial stops. If n.at.MTD patients have been assigned to a single dose, and this dose is the 
+\item{n.at.MTD}{A positive integer which is the number of patients that should be at the estimated MTD
+before the trial stops. If n.at.MTD patients have been assigned to a single dose, and this dose is the
 current MTD that would be assigned to the next patient, then the trial stops.}
 
 \item{followup_b4_esc}{A positive number indicating how much follow-up time at least one patient has to have
@@ -111,14 +111,14 @@ on a given dose before the model escalates to the next dose.}
 \item{earliest_stop}{A positive integer indicating how many patients must be observed before the trial can stop.}
 }
 \value{
-The function returns a list, with named components last_sim and all_sim. Access the last_sim to 
-see the individual details of the single last simulation, or access all_sim to see summaries across all 
+The function returns a list, with named components last_sim and all_sim. Access the last_sim to
+see the individual details of the single last simulation, or access all_sim to see summaries across all
 simulations performed.
 }
 \description{
-This is the simulator function for a tite-crm trial. Thus, the user provides as input
-both the design elements as well as the true, dose-toxicity curve that is generally unknown in 
-the real world. The simulator runs a certain number of simulated trials, creating data according to the 
+This is the simulator function for a TITE-CRM trial. The user provides as input
+both the design elements as well as the true, dose-toxicity curve that is generally unknown in
+the real world. The simulator runs a certain number of simulated trials, creating data according to the
 dose-toxicity curve and making assignments according to the titecrm model. Various operating charateristics
 are reported. This function is meant to be called in the context of twostage_simulator rather than by the
 user directly.

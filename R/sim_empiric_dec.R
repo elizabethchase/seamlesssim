@@ -25,7 +25,7 @@
 #' At a given dose level, at what point should the module_rule start taking action? This is an
 #' ad-hoc way to prevent a scenario such as "The first patient experienced a DLT, therefore because
 #' all patients at this dose level have experienced a DLT, we should de-escalate."
-#' @param seed A positive integer seed for use prior to starting the simulations
+#' @param seed A positive integer seed for use prior to starting the simulations.
 #' @return A named list with entries:
 #' \describe{
 #'    \item{all_results}{A matrix giving the individual patient outcomes from all simulated trials.}

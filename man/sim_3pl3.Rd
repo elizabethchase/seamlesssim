@@ -16,36 +16,36 @@ sim_3pl3(
 \arguments{
 \item{n_sim}{How many simulated trials to conduct? (positive integer)}
 
-\item{true_tox_curve}{A positive numeric vector that contains the true generating dose-toxicity 
+\item{true_tox_curve}{A positive numeric vector that contains the true generating dose-toxicity
 curve to simulate the data from. This also gives the number of dose levels.}
 
-\item{stage_label}{A numeric value that can be arbitrary but is intended to take on integer 
+\item{stage_label}{A numeric value that can be arbitrary but is intended to take on integer
 values equal to either 1 or 2, corresponding to the stage of the trial.}
 
-\item{sim_specific_start_id}{A positive integer vector that contains the starting subject id 
+\item{sim_specific_start_id}{A positive integer vector that contains the starting subject id
 for each simulated trial. If provided, it must be as long as 'n_sim.' If left blank, the default
 starting patient is patient 1.}
 
-\item{sim_specific_dose_start}{A positive integer vector that contains the starting dose level 
+\item{sim_specific_dose_start}{A positive integer vector that contains the starting dose level
 for each simulated trial. If provided, it must be as long as 'n_sim' and take on values between
-0 (indicating that no patients should be enrolled) to length(true_tox_curve). If left blank, the 
+0 (indicating that no patients should be enrolled) to length(true_tox_curve). If left blank, the
 default starting dose is dose 1.}
 
-\item{seed}{A positive integer seed for use prior to starting the simulations}
+\item{seed}{A positive integer seed for use prior to starting the simulations.}
 }
 \value{
 A named list with entries:
 \describe{
-   \item{all_results}{A matrix giving the individual patient outcomes from all simulated trials} 
-   \item{estMTD}{A vector as long as the number of simulated trials giving an integer value 
-corresponding to the estimated MTD from each trial; a value of 0 indicates that all dose 
-levels were estimated to be unsafe} 
-   \item{enrollment}{A vector as long as the number of simulated trials giving the total enrollment 
-for that trial}
-   \item{seed}{The seed that was used by the function}
+   \item{all_results}{A matrix giving the individual patient outcomes from all simulated trials.}
+   \item{estMTD}{A vector as long as the number of simulated trials giving an integer value
+corresponding to the estimated MTD from each trial; a value of 0 indicates that all dose
+levels were estimated to be unsafe.}
+   \item{enrollment}{A vector as long as the number of simulated trials giving the total enrollment
+for that trial.}
+   \item{seed}{The seed that was used by the function.}
 }
 }
 \description{
-This function is an efficient simulator of the 3+3 design. It is intended to be called from 
+This function is an efficient simulator of the 3+3 design. It is intended to be called from
 twostage_simulator rather than by the user directly.
 }
