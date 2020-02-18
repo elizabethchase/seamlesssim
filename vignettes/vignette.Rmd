@@ -33,7 +33,7 @@ library(seamlesssim)
 ?sim_empiric_dec
 ```
 
-to obtain information on the \texttt{sim_empiric_dec} function. The same could be done for all of the functions in the package.
+to obtain information on the \texttt{sim}\_\texttt{empiric}\_\texttt{dec} function. The same could be done for all of the functions in the package.
 
 ## Specifying Designs and Scenarios
 
@@ -241,9 +241,9 @@ From \texttt{twostage}\_\texttt{results}, we get a list containing the items \te
 
 And \texttt{plots} contains:
 
-4. \texttt{gen}\_\texttt{params}\_\texttt{plot}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in table form. If there are fewer than \texttt{design_per_page} designs and \texttt{scen_per_page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
+4. \texttt{gen}\_\texttt{params}\_\texttt{plot}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in table form. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-5. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a list of plots giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all. If there are fewer than \texttt{design_per_page} designs and \texttt{scen_per_page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
+5. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a list of plots giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
 6. \texttt{n}\_\texttt{patients}\_\texttt{plot}. This is a boxplot of the number of patients enrolled for each design and scenario combination across the different simulated trials.
 
