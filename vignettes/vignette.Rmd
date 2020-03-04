@@ -27,7 +27,7 @@ We consider several ways to estimate toxicity and efficacy within each of these 
 
 ## Installation
 
-First, we need to install the package by running \texttt{install.packages("seamlesssim")}, then load it into R by running \texttt{library(seamlesssim)}. To call up documentation on \texttt{seamlesssim}, we can use the ? operator to read more about functions. For example, we could run:
+First, we need to install the package by running \texttt{devtools::install_github(elizabethchase/seamlesssim)}, then load it into R by running \texttt{library(seamlesssim)}. To call up documentation on \texttt{seamlesssim}, we can use the ? operator to read more about functions. For example, we could run:
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 library(seamlesssim)
 ?sim_empiric_dec
@@ -37,7 +37,7 @@ to obtain information on the \texttt{sim}\_\texttt{empiric}\_\texttt{dec} functi
 
 ## Specifying Designs and Scenarios
 
-Our first task is to specify the goals of the trial. What is our toxicity threshold, or the maximum amount of toxicity we can tolerate, and how much can we deviate from that? What amount of efficacy do we want to see? In our example, we set our toxicity threshold at 0.25, so that no more than 25\% of patients will have a toxicity on the MTD; however, we allow toxicity to go 5\% above this (\texttt{tox}\_\texttt{delta}\_\texttt{no}\_\texttt{exceed} = 0.05) during dose exploration. We set our efficacy threshold at 0.2, so that at least 20\% of patients must show some evidence of efficacy. 
+Our first task is to specify the goals of the trial. What is our toxicity threshold, or the maximum amount of toxicity we can tolerate, and how much can we deviate from that? What amount of efficacy do we want to see? In our example, we set our toxicity threshold at 0.25, meaning that the true, unknown MTD is defined as the dose level such that the probability of dose-limiting toxicity is no greater than 25%; however, we allow toxicity to go 5\% above this (\texttt{tox}\_\texttt{delta}\_\texttt{no}\_\texttt{exceed} = 0.05) during dose exploration. We set our efficacy threshold at 0.2, so that at the true MTD, the true efficacy rate is at least 20\%. 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 primary_objectives <- c(tox_target = 0.25,
                        tox_delta_no_exceed = 0.05,
@@ -61,7 +61,7 @@ tox_eff_curves <- list(
 
 To interpret one of these: in scenario 1, we believe that dose 1 has 8\% toxicity and 10\% efficacy, while dose 5 has 35\% toxicity and 38\% efficacy.
 
-Finally, we need to specify which designs we want to consider, and we provide the necessary parameters for each design we're considering. We will consider 3 different designs. They are:
+Finally, we need to specify which designs we want to consider, and we need to provide the necessary parameters for each design we're considering. We will consider 3 different designs. They are:
 
 1. Our first design uses 3+3 in Module 1, and then uses a Bayesian interval test in Module 2. For the interval test, it sets its prior parameters as estimating that all 5 doses will have 10\% efficacy (\texttt{prior}\_\texttt{mean}), but its confidence in this prior is low--\texttt{prior}\_\texttt{n}\_\texttt{per} is only 1. Its threshold is \texttt{prob}\_\texttt{threshold} = 30\%, so in order for the trial to proceed, the posterior probability of any of the doses meeting the efficacy threshold of 20\% must be at least 30\%. In Module 4, it then uses a dose-deescalation scheme in 35 patients (\texttt{n} = 35) to continue checking toxicity, and after 10 patients (\texttt{first}\_\texttt{patient}\_\texttt{look} = 10) it will check to see if toxicity exceeds 33\% (\texttt{thresh}\_\texttt{decrease} = 0.33). If so, it will de-escalate the dose. Finally, the design finishes off in Module 5 by using another Bayesian interval test to check efficacy at the end of the trial, with the same prior as was used in Module 2, but now with a higher posterior probabiltiy threshold of 38\%, and using all of the data from Modules 1-5.  
 
@@ -164,7 +164,7 @@ design_labels <- c("3pl3:bayes::emp:bayes", "crm:bayes::crm:bayes", "crm::isoreg
 
 Now, we run the simulator. Because we aren't running this in parallel, we leave \texttt{array}\_\texttt{id} equal to 1. If we were calling this function many times in parallel, we would assign a different \texttt{array}\_\texttt{id} to each run. We set \texttt{n}\_\texttt{sim} to 5, so we will simulate 5 trials for each scenario and design. Note that because this function is computationally intensive, running more than about 30 simulations will take a while. We input our \texttt{primary}\_\texttt{objectives}, \texttt{design}\_\texttt{list}, and \texttt{design}\_\texttt{labels} from above. We leave the \texttt{stan}\_\texttt{args} as their default (\texttt{NA}), although more experienced STAN users may want to modify these. We leave \texttt{sim}\_\texttt{labels} as the default, so each simulated trial will get a numeric id, and we leave \texttt{do}\_\texttt{efficient}\_\texttt{simulation} as TRUE, so that simulation results will be repeated for similar designs. We use a \texttt{seed} of 1.
 
-Because twostage_simulator can only consider one scenario at a time, we call the function three times, with \texttt{tox}\_\texttt{eff}\_\texttt{curves} varying for each true scenario. (Note that for more than 3 scenarios, we may want to do these repeated calls in parallel, or using \texttt{lapply}.) 
+Because \texttt{twostage}\_\texttt{simulator} can only consider one scenario at a time, we call the function three times, with \texttt{tox}\_\texttt{eff}\_\texttt{curves} varying for each true scenario. (Note that for more than 3 scenarios, we may want to do these repeated calls in parallel, or consider using \texttt{lapply}.) 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 mysims_scen1 <- twostage_simulator(array_id = 1,
                               n_sim = 5,
