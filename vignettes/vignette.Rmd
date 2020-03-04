@@ -27,7 +27,7 @@ We consider several ways to estimate toxicity and efficacy within each of these 
 
 ## Installation
 
-First, we need to install the package by running \texttt{devtools::install_github(elizabethchase/seamlesssim)}, then load it into R by running \texttt{library(seamlesssim)}. To call up documentation on \texttt{seamlesssim}, we can use the ? operator to read more about functions. For example, we could run:
+First, we need to install the package by running \texttt{devtools}::\texttt{install}\_\texttt{github(elizabethchase/seamlesssim)}, then load it into R by running \texttt{library(seamlesssim)}. To call up documentation on \texttt{seamlesssim}, we can use the ? operator to read more about functions. For example, we could run:
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 library(seamlesssim)
 ?sim_empiric_dec
