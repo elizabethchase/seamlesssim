@@ -6,6 +6,10 @@
 basic plots and summary tables.}
 \usage{
 twostage_results(
+  csv = FALSE,
+  stage2folder = NULL,
+  finaldatfolder = NULL,
+  dose_outcome_curves = NULL,
   files = NULL,
   filepath = TRUE,
   primary_objectives = NULL,
@@ -15,13 +19,33 @@ twostage_results(
 )
 }
 \arguments{
+\item{csv}{A logical value indicating whether the output from twostage_simulator has been saved
+as .csv file(s) (if .csv, then TRUE).}
+
+\item{stage2folder}{A character string giving the filepath to a folder containing
+nothing but sim_data_stage2 output from twostage_simulator, saved as .csv file(s).
+This should only be provided if csv = TRUE.}
+
+\item{finaldatfolder}{A character string giving the filepath to a folder containing
+nothing but patient_data output from twostage_simulator, saved as .csv file(s).
+This should only be provided if csv = TRUE.}
+
+\item{dose_outcome_curves}{A list containing three named elements and an optional fourth
+element: tox_curve, eff_curve, scenario, and, optionally, eff_curve_stage2. tox_curve is
+the true toxicity curve of the doses; eff_curve is the true efficacy curve of the doses;
+scenario is an identifier of which true data-generating scenario is being run (meant to be
+helpful to the user when calling this function multiple times for different data-generating
+scenarios). This should be the same list that was used in twostage_simulator to generate all
+the simulated trials. This should only be provided if csv = TRUE.}
+
 \item{files}{A character string giving the filepath to a folder containing
 nothing but the raw output from twostage_simulator, saved as .Rds file(s). Alternatively, this can
 a character vector containing the names of all of the raw output from twostage_simulator, stored
-in the workspace.}
+in the workspace. This should only be provided if csv = FALSE.}
 
 \item{filepath}{A logical value indicating whether files contains a filepath (filepath = TRUE) or
-a character vector of file names stored in the workspace (filepath = FALSE). The default is TRUE.}
+a character vector of file names stored in the workspace (filepath = FALSE). The default is TRUE.
+This should only be provided if csv = FALSE.}
 
 \item{primary_objectives}{A list containing three named elements: tox_target, tox_delta_no_exceed,
 and eff_target, such that tox_target is between 0 and 1, tox_delta_no_exceed is between 0 and

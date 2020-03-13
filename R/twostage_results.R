@@ -4,12 +4,28 @@
 #' For more information on function inputs and features, please see the vignette
 #' and Boonstra (2020) on Arxiv.
 #'
+#' @param csv A logical value indicating whether the output from twostage_simulator has been saved
+#' as .csv file(s) (if .csv, then TRUE).
+#' @param stage2folder A character string giving the filepath to a folder containing
+#' nothing but sim_data_stage2 output from twostage_simulator, saved as .csv file(s).
+#' This should only be provided if csv = TRUE.
+#' @param finaldatfolder A character string giving the filepath to a folder containing
+#' nothing but patient_data output from twostage_simulator, saved as .csv file(s).
+#' This should only be provided if csv = TRUE.
+#' @param dose_outcome_curves A list containing three named elements and an optional fourth
+#' element: tox_curve, eff_curve, scenario, and, optionally, eff_curve_stage2. tox_curve is
+#' the true toxicity curve of the doses; eff_curve is the true efficacy curve of the doses;
+#' scenario is an identifier of which true data-generating scenario is being run (meant to be
+#' helpful to the user when calling this function multiple times for different data-generating
+#' scenarios). This should be the same list that was used in twostage_simulator to generate all
+#' the simulated trials. This should only be provided if csv = TRUE.
 #' @param files A character string giving the filepath to a folder containing
 #' nothing but the raw output from twostage_simulator, saved as .Rds file(s). Alternatively, this can
 #' a character vector containing the names of all of the raw output from twostage_simulator, stored
-#' in the workspace.
+#' in the workspace. This should only be provided if csv = FALSE.
 #' @param filepath A logical value indicating whether files contains a filepath (filepath = TRUE) or
 #' a character vector of file names stored in the workspace (filepath = FALSE). The default is TRUE.
+#' This should only be provided if csv = FALSE.
 #' @param primary_objectives A list containing three named elements: tox_target, tox_delta_no_exceed,
 #' and eff_target, such that tox_target is between 0 and 1, tox_delta_no_exceed is between 0 and
 #' (1 - tox_target), and eff_target is between 0 and 1. This should be the same list that was used in
@@ -63,24 +79,17 @@
 #' position_dodge2 ylab xlab scale_fill_discrete unit
 #' @import RColorBrewer
 #' @export
-twostage_results <- function(files = NULL,
+twostage_results <- function(csv = FALSE,
+                             stage2folder = NULL,
+                             finaldatfolder = NULL,
+                             dose_outcome_curves = NULL,
+                             files = NULL,
                              filepath = TRUE,
                              primary_objectives = NULL,
                              design_labels=NULL,
                              scen_per_page = 10,
                              design_per_page = 3){
 
-  if (typeof(files) != "character") {
-    stop("'files' must be a character string or vector");
-  }
-  if (filepath){
-    myfiles <- list.files(path = files, pattern = ".Rds", full.names=TRUE)
-    if (is_empty(files)){
-      stop("This folder contains no files with extension .Rds")
-    }
-  } else{
-    myfiles <- files
-  }
   if (scen_per_page > 10){
     stop("'scen_per_page' can be at most 10")
   }
@@ -141,6 +150,18 @@ twostage_results <- function(files = NULL,
   trial_summary = NULL;
   patient_summary <- NULL
 
+  if (!csv){
+    if (typeof(files) != "character") {
+      stop("'files' must be a character string or vector");
+    }
+    if (filepath){
+      myfiles <- list.files(path = files, pattern = ".Rds", full.names=TRUE)
+      if (is_empty(files)){
+        stop("This folder contains no files with extension .Rds")
+      }
+    } else{
+      myfiles <- files
+    }
   for (i in 1:length(myfiles)){
     if (filepath){
       dat <- readRDS(myfiles[i])
@@ -186,6 +207,72 @@ twostage_results <- function(files = NULL,
     }
     rm(list=c("dat"))
     cat(i,"\n");
+  }
+  } else{
+    if (typeof(stage2folder) != "character") {
+      stop("'stage2folder' must be a character string");
+    }
+    if (typeof(finaldatfolder) != "character") {
+      stop("'finaldatfolder' must be a character string");
+    }
+    stage2files <- list.files(path = stage2folder, pattern = ".csv", full.names=TRUE)
+      if (is_empty(stage2files)){
+        stop("stage2folder contains no files with extension .csv")
+      }
+
+    finaldatfiles <- list.files(path = finaldatfolder, pattern = ".csv", full.names=TRUE)
+    if (is_empty(finaldatfiles)){
+      stop("finaldatfolder contains no files with extension .csv")
+    }
+
+    if (length(finaldatfiles) != length(stage2files)){
+      stop("finaldatfolder and stage2folder contain different numbers of csv files")
+    }
+
+    for (i in 1:length(finaldatfiles)){
+      stage2dat <- read_csv(stage2files[i])
+      finaldat <- read_csv(finaldatfiles[i])
+      trial_summary <- rbind(trial_summary, stage2dat)
+      patient_summary <- rbind(patient_summary, finaldat)
+      rm(list=c("stage2dat", "finaldat"))
+      cat(i,"\n");
+    }
+
+    for (i in 1:length(dose_outcome_curves)){
+      newrow <- c()
+      newrow[1] = dose_outcome_curves[[i]]$scenario;
+      newrow[2] = paste0("{",paste0(dose_outcome_curves[[i]]$tox_curve,collapse=","),"}");
+      newrow[3] = paste0("{",paste0(dose_outcome_curves[[i]]$eff_curve,collapse=","),"}");
+      newrow[4] = max(c(which(dose_outcome_curves[[i]]$tox_curve <= primary_objectives[["tox_target"]] +
+                                primary_objectives[["tox_delta_no_exceed"]]),0));
+      curr_admiss = (dose_outcome_curves[[i]]$eff_curve >= primary_objectives[["eff_target"]]) &
+        (dose_outcome_curves[[i]]$tox_curve <=  primary_objectives[["tox_target"]] +
+           primary_objectives[["tox_delta_no_exceed"]]);
+      if(sum(curr_admiss) == 0) {
+        newrow[5] = 0
+        curr_admiss = c(T, curr_admiss);
+      } else if(sum(curr_admiss) == 1) {
+        newrow[5] = which(curr_admiss);
+        curr_admiss = c(F, curr_admiss);
+      } else {
+        newrow[5] = paste0("{",paste0(which(curr_admiss),collapse=","),"}");
+        curr_admiss = c(F, curr_admiss);}
+
+      generating_params_for_display <- rbind(generating_params_for_display, newrow)
+      mtd_as_logical = (0:length(dose_outcome_curves[[i]]$tox_curve)) == max(c(which(dose_outcome_curves[[i]]$tox_curve <= primary_objectives[["tox_target"]] +
+                                                                                      primary_objectives[["tox_delta_no_exceed"]]),0))
+      generating_params = rbind(generating_params,
+                                cbind(dose_outcome_curves[[i]]$scenario,
+                                      0:length(dose_outcome_curves[[i]]$tox_curve),
+                                      c(0, dose_outcome_curves[[i]]$tox_curve),
+                                      c(0, dose_outcome_curves[[i]]$eff_curve),
+                                      primary_objectives["tox_target"] + primary_objectives["tox_delta_no_exceed"],
+                                      primary_objectives["eff_target"],
+                                      mtd_as_logical,
+                                      curr_admiss
+                                ))
+      scen <- c(scen, dose_outcome_curves[[i]]$scenario)
+    }
   }
 
   generating_params_for_display <- generating_params_for_display[-1,]

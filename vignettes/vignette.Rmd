@@ -212,20 +212,37 @@ Each of these function calls will result in a list with many elements. Of these 
 
 For users with a good grasp of data management and plotting techniques in R, these data can be used to create most summary statistics and plots that would be useful in a trial protocol. However, for users who are less confident in R (or who want a quick synopsis of the simulation results before doing more personalized descriptives), it may be useful to use the \texttt{twostage}\_\texttt{results} function, which provides some basic plots and tables from the three datasets described above. 
 
-To use the function, we can do one of two things. For a large number of files, we need to save the raw output from the \texttt{twostage}\_\texttt{simulator} function as \texttt{.Rds} files in their own dedicated folder. If there are other \texttt{.Rds} files in the folder that weren't produced by \texttt{twostage}\_\texttt{simulator}, the function will not work properly. For a smaller number of files (and what we do here), we leave all of the files in the workspace and input them to \texttt{twostage}\_\texttt{results} as a character vector giving their names. We include a comment giving example code for how we would save the data to a folder for interested users. 
+To use the function, we can do one of three things. For a large number of files, we can save the \texttt{patient}\_\texttt{data} and \texttt{sim}\_\texttt{data}\_\texttt{stage2} output as \texttt{.csv} files in separate folders. For a moderate number of files, we can save the raw output from the \texttt{twostage}\_\texttt{simulator} function as \texttt{.Rds} files in their own dedicated folder. If there are other \texttt{.Rds} files in the folder that weren't produced by \texttt{twostage}\_\texttt{simulator}, the function will not work properly. For a small number of files (and what we do here), we leave all of the files in the workspace and input them to \texttt{twostage}\_\texttt{results} as a character vector giving their names. We include a comment giving example code for how we would save the data to a folder as \texttt{.csv} or \texttt{.Rds}for interested users. 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
-#How to save the results to myfolder and then read it into twostage_results:
+#How to save the .csv results to patientdatfolder and stage2datfolder and then 
+#read it into twostage_results:
+#write_csv(mysims_scen1$patient_data, path = "patientdatfolder/scen1.csv")
+#write_csv(mysims_scen1$sim_data_stage2, path = "stage2datfolder/scen1.csv")
+#write_csv(mysims_scen2$patient_data, path = "patientdatfolder/scen2.csv")
+#write_csv(mysims_scen2$sim_data_stage2, path = "stage2datfolder/scen2.csv")
+#write_csv(mysims_scen3$patient_data, path = "patientdatfolder/scen3.csv")
+#write_csv(mysims_scen3$sim_data_stage2, path = "stage2datfolder/scen3.csv")
+#myresults <- twostage_results(csv = TRUE,
+ #                            stage2folder = "stage2datfolder",
+ #                            finaldatfolder = "patientdatfolder",
+ #                            dose_outcome_curves = tox_eff_curves,
+ #                            primary_objectives = primary_objectives,
+ #                            design_labels = design_labels)
+  
+#How to save the .Rds results to myfolder and then read it into twostage_results:
 #saveRDS(mysims_scen1, file = "myfolder/scen1.Rds")
 #saveRDS(mysims_scen2, file = "myfolder/scen2.Rds")
 #saveRDS(mysims_scen3, file = "myfolder/scen3.Rds")
-#myresults <- twostage_results(files = "myfolder",
+#myresults <- twostage_results(csv = FALSE,
+ #                            files = "myfolder",
  #                            filepath = TRUE,
  #                            primary_objectives = primary_objectives,
  #                            design_labels = design_labels)
 
 #How to read the results into twostage_results from the workspace:
 myfiles <- c("mysims_scen1", "mysims_scen2", "mysims_scen3")
-myresults <- twostage_results(files = myfiles,
+myresults <- twostage_results(csv = FALSE,
+                             files = myfiles,
                              filepath = FALSE,
                              primary_objectives = primary_objectives,
                              design_labels = design_labels)
