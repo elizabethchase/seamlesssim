@@ -9,7 +9,7 @@
 #' @param stage2folder A character string giving the filepath to a folder containing
 #' nothing but sim_data_stage2 output from twostage_simulator, saved as .csv file(s).
 #' This should only be provided if csv = TRUE.
-#' @param finaldatfolder A character string giving the filepath to a folder containing
+#' @param patientdatfolder A character string giving the filepath to a folder containing
 #' nothing but patient_data output from twostage_simulator, saved as .csv file(s).
 #' This should only be provided if csv = TRUE.
 #' @param dose_outcome_curves A list containing three named elements and an optional fourth
@@ -73,7 +73,7 @@
 #' @importFrom dplyr %>% mutate arrange near group_by tally n ungroup select filter
 #' summarize left_join
 #' @importFrom tidyr gather spread
-#' @importFrom ggplot2 ggplot aes geom_point geom_line facet_grid labs scale_y_continuous expand_scale
+#' @importFrom ggplot2 ggplot aes geom_point geom_line facet_grid labs scale_y_continuous expansion
 #' scale_color_manual guides guide_legend theme element_text margin element_blank geom_bar geom_text
 #' geom_col scale_y_reverse scale_x_continuous scale_fill_manual scale_size_manual geom_boxplot
 #' position_dodge2 ylab xlab scale_fill_discrete unit
@@ -81,12 +81,12 @@
 #' @export
 twostage_results <- function(csv = FALSE,
                              stage2folder = NULL,
-                             finaldatfolder = NULL,
+                             patientdatfolder = NULL,
                              dose_outcome_curves = NULL,
                              files = NULL,
                              filepath = TRUE,
                              primary_objectives = NULL,
-                             design_labels=NULL,
+                             design_labels = NULL,
                              scen_per_page = 10,
                              design_per_page = 3){
 
@@ -156,87 +156,96 @@ twostage_results <- function(csv = FALSE,
     }
     if (filepath){
       myfiles <- list.files(path = files, pattern = ".Rds", full.names=TRUE)
-      if (is_empty(files)){
-        stop("This folder contains no files with extension .Rds")
+      if (is_empty(myfiles)){
+        stop("'files' contains no files with extension .Rds OR 'files' does not point to a valid path")
       }
     } else{
       myfiles <- files
     }
-  for (i in 1:length(myfiles)){
-    if (filepath){
-      dat <- readRDS(myfiles[i])
-    } else{
-      dat <- get(myfiles[i])
-    }
-    trial_summary <- rbind(trial_summary, dat$sim_data_stage2)
-    patient_summary <- rbind(patient_summary, dat$patient_data)
-    if (!dat$dose_outcome_curves$scenario %in% scen){
-      newrow <- c()
-      newrow[1] = dat$dose_outcome_curves$scenario;
-      newrow[2] = paste0("{",paste0(dat$dose_outcome_curves$tox_curve,collapse=","),"}");
-      newrow[3] = paste0("{",paste0(dat$dose_outcome_curves$eff_curve,collapse=","),"}");
-      newrow[4] = max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
-                                primary_objectives[["tox_delta_no_exceed"]]),0));
-      curr_admiss = (dat$dose_outcome_curves$eff_curve >= primary_objectives[["eff_target"]]) &
-        (dat$dose_outcome_curves$tox_curve <=  primary_objectives[["tox_target"]] +
-           primary_objectives[["tox_delta_no_exceed"]]);
-      if(sum(curr_admiss) == 0) {
-        newrow[5] = 0
-        curr_admiss = c(T, curr_admiss);
-      } else if(sum(curr_admiss) == 1) {
-        newrow[5] = which(curr_admiss);
-        curr_admiss = c(F, curr_admiss);
-      } else {
-        newrow[5] = paste0("{",paste0(which(curr_admiss),collapse=","),"}");
-        curr_admiss = c(F, curr_admiss);}
+    for (i in 1:length(myfiles)){
+      if (filepath){
+        dat <- readRDS(myfiles[i])
+      } else{
+        dat <- get(myfiles[i])
+      }
+      trial_summary <- rbind(trial_summary, dat$sim_data_stage2)
+      patient_summary <- rbind(patient_summary, dat$patient_data)
+      if (!dat$dose_outcome_curves$scenario %in% scen){
+        newrow <- c()
+        newrow[1] = dat$dose_outcome_curves$scenario;
+        newrow[2] = paste0("{",paste0(dat$dose_outcome_curves$tox_curve,collapse=","),"}");
+        newrow[3] = paste0("{",paste0(dat$dose_outcome_curves$eff_curve,collapse=","),"}");
+        newrow[4] = max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
+                                  primary_objectives[["tox_delta_no_exceed"]]),0));
+        curr_admiss = (dat$dose_outcome_curves$eff_curve >= primary_objectives[["eff_target"]]) &
+          (dat$dose_outcome_curves$tox_curve <=  primary_objectives[["tox_target"]] +
+             primary_objectives[["tox_delta_no_exceed"]]);
+        if(sum(curr_admiss) == 0) {
+          newrow[5] = 0
+          curr_admiss = c(T, curr_admiss);
+        } else if(sum(curr_admiss) == 1) {
+          newrow[5] = which(curr_admiss);
+          curr_admiss = c(F, curr_admiss);
+        } else {
+          newrow[5] = paste0("{",paste0(which(curr_admiss),collapse=","),"}");
+          curr_admiss = c(F, curr_admiss);}
 
-      generating_params_for_display <- rbind(generating_params_for_display, newrow)
-      mtd_as_logical = (0:length(dat$dose_outcome_curves$tox_curve)) == max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
-                                                                                      primary_objectives[["tox_delta_no_exceed"]]),0))
-      generating_params = rbind(generating_params,
-                                cbind(dat$dose_outcome_curves$scenario,
-                                      0:length(dat$dose_outcome_curves$tox_curve),
-                                      c(0, dat$dose_outcome_curves$tox_curve),
-                                      c(0, dat$dose_outcome_curves$eff_curve),
-                                      primary_objectives["tox_target"] + primary_objectives["tox_delta_no_exceed"],
-                                      primary_objectives["eff_target"],
-                                      mtd_as_logical,
-                                      curr_admiss
-                                ))
-      scen <- c(scen, dat$dose_outcome_curves$scenario)
+        generating_params_for_display <- rbind(generating_params_for_display, newrow)
+        mtd_as_logical = (0:length(dat$dose_outcome_curves$tox_curve)) == max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
+                                                                                        primary_objectives[["tox_delta_no_exceed"]]),0))
+        generating_params = rbind(generating_params,
+                                  cbind(dat$dose_outcome_curves$scenario,
+                                        0:length(dat$dose_outcome_curves$tox_curve),
+                                        c(0, dat$dose_outcome_curves$tox_curve),
+                                        c(0, dat$dose_outcome_curves$eff_curve),
+                                        primary_objectives["tox_target"] + primary_objectives["tox_delta_no_exceed"],
+                                        primary_objectives["eff_target"],
+                                        mtd_as_logical,
+                                        curr_admiss
+                                  ))
+        scen <- c(scen, dat$dose_outcome_curves$scenario)
+      }
+      rm(list=c("dat"))
+      cat(i,"\n");
     }
-    rm(list=c("dat"))
-    cat(i,"\n");
-  }
   } else{
     if (typeof(stage2folder) != "character") {
       stop("'stage2folder' must be a character string");
     }
-    if (typeof(finaldatfolder) != "character") {
-      stop("'finaldatfolder' must be a character string");
+    if (typeof(patientdatfolder) != "character") {
+      stop("'patientdatfolder' must be a character string");
     }
-    stage2files <- list.files(path = stage2folder, pattern = ".csv", full.names=TRUE)
-      if (is_empty(stage2files)){
-        stop("stage2folder contains no files with extension .csv")
-      }
-
-    finaldatfiles <- list.files(path = finaldatfolder, pattern = ".csv", full.names=TRUE)
-    if (is_empty(finaldatfiles)){
-      stop("finaldatfolder contains no files with extension .csv")
+    stage2files <- list.files(path = stage2folder, pattern = "Stage2Data\\d*.csv", full.names=TRUE)
+    if (is_empty(stage2files)){
+      stop("'stage2folder' contains no files with extension .csv OR 'stage2folder' does not point to a valid path")
     }
 
-    if (length(finaldatfiles) != length(stage2files)){
-      stop("finaldatfolder and stage2folder contain different numbers of csv files")
+    patientdatfiles <- list.files(path = patientdatfolder, pattern = "PatientData\\d*.csv", full.names=TRUE)
+    if (is_empty(patientdatfiles)){
+      stop("'patientdatfolder' contains no files with extension .csv OR 'patientdatfolder' does not point to a valid path")
     }
 
-    for (i in 1:length(finaldatfiles)){
-      stage2dat <- read_csv(stage2files[i])
-      finaldat <- read_csv(finaldatfiles[i])
-      trial_summary <- rbind(trial_summary, stage2dat)
-      patient_summary <- rbind(patient_summary, finaldat)
-      rm(list=c("stage2dat", "finaldat"))
-      cat(i,"\n");
+    if (length(patientdatfiles) != length(stage2files)){
+      stop("patientdatfolder and stage2folder contain different numbers of csv files")
     }
+
+    col_specs =
+      cols(.default = col_double(),
+           estMTDCode = col_character(),
+           RP2DCode = col_character())
+
+    trial_summary <-
+      map(stage2files,
+          read_csv,
+          col_types = col_specs, progress = FALSE) %>%
+      bind_rows()
+
+    patient_summary <-
+      map(patientdatfiles,
+          read_csv,
+          col_types = col_specs, progress = FALSE) %>%
+      bind_rows()
+
 
     for (i in 1:length(dose_outcome_curves)){
       newrow <- c()
@@ -260,7 +269,7 @@ twostage_results <- function(csv = FALSE,
 
       generating_params_for_display <- rbind(generating_params_for_display, newrow)
       mtd_as_logical = (0:length(dose_outcome_curves[[i]]$tox_curve)) == max(c(which(dose_outcome_curves[[i]]$tox_curve <= primary_objectives[["tox_target"]] +
-                                                                                      primary_objectives[["tox_delta_no_exceed"]]),0))
+                                                                                       primary_objectives[["tox_delta_no_exceed"]]),0))
       generating_params = rbind(generating_params,
                                 cbind(dose_outcome_curves[[i]]$scenario,
                                       0:length(dose_outcome_curves[[i]]$tox_curve),
@@ -315,38 +324,55 @@ twostage_results <- function(csv = FALSE,
     arrange(scenario, dose_num);
 
   if (is.null(design_labels)){
-    des_lab <- c(1:length(unique(trial_summary$design)))
-  } else {des_lab <- design_labels}
-
-  if (!near(length(des_lab), length(unique(trial_summary$design)))){
-    stop("'design_labels' must be the same length as the number of unique designs")
+    design_labels <- c(1:length(unique(trial_summary$design)))
+  } else {
+    if (!near(length(design_labels), length(unique(trial_summary$design)))){
+      stop("'design_labels' must be the same length as the number of unique designs")
+    }
   }
 
-  trial_summary <- arrange(trial_summary, design)
-  for (j in 1:length(unique(trial_summary$design))){
-    trial_summary$designnum[trial_summary$design==unique(trial_summary$design)[j]] <- j
-  }
-  trial_summary$set_designation <- ceiling(trial_summary$designnum/design_per_page)
+  # Elizabeth: can you confirm that the following block of code is equivalent
+  # to the commented code that immediately follows?
+  trial_summary <-
+    arrange(trial_summary, design, scenario) %>%
+    mutate(designnum =
+             factor(design) %>%
+             fct_inorder() %>%
+             as.numeric(),
+           set_designation = ceiling(designnum / design_per_page),
+           scennum =
+             factor(scenario) %>%
+             fct_inorder() %>%
+             as.numeric(),
+           scen_designation = ceiling(scennum / scen_per_page))
+  #for (j in 1:length(unique(trial_summary$design))){
+  #  trial_summary$designnum[trial_summary$design==unique(trial_summary$design)[j]] <- j
+  #}
+  #trial_summary$set_designation <- ceiling(trial_summary$designnum/design_per_page)
 
-  trial_summary <- arrange(trial_summary, scenario)
-  for (j in 1:length(unique(trial_summary$scenario))){
-    trial_summary$scennum[trial_summary$scenario==unique(trial_summary$scenario)[j]] <- j
-  }
-  trial_summary$scen_designation <- ceiling(trial_summary$scennum/scen_per_page)
+  #trial_summary <- arrange(trial_summary, scenario)
+  #for (j in 1:length(unique(trial_summary$scenario))){
+  #  trial_summary$scennum[trial_summary$scenario==unique(trial_summary$scenario)[j]] <- j
+  #}
+  #trial_summary$scen_designation <- ceiling(trial_summary$scennum/scen_per_page)
 
   trial_summary =
     trial_summary %>%
+    arrange(design, scenario, array_id, sim_id) %>%
     mutate(design_label =
              factor(design,
                     levels = unique(design),
-                    labels = des_lab,
+                    labels = design_labels,
                     ordered = T),
            scenario =
              factor(scenario,
-                    levels = unique(scenario)[order(unique(scenario))],
-                    labels = paste0("Scenario ", unique(scenario)[order(unique(scenario))]),
+                    # Elizabeth I think we can use the following after
+                    # sorting by scenario above:
+                    levels = sort(unique(scenario)),
+                    labels = paste0("Scenario ", sort(unique(scenario))),
+                    #levels = unique(scenario)[order(unique(scenario))],
+                    #labels = paste0("Scenario ", unique(scenario)[order(unique(scenario))]),
                     ordered = T)) %>%
-    arrange(design, scenario, array_id, sim_id) %>%
     as.data.frame();
 
   # Result 1: Distribution of potential recommended dose levels (coarsened)
@@ -378,15 +404,18 @@ twostage_results <- function(csv = FALSE,
     ungroup() %>%
     as.data.frame();
 
+  # Elizabeth can you add the RColorBrewer package as another dependency?
   outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
 
   gen_param_plot <- vector("list", length = length(unique(generating_params_tall$scen_designation)))
 
   for (j in unique(generating_params_tall$scen_designation)){
     subdat <- filter(generating_params_tall, scen_designation==j)
-    gen_param_plot[[j]] <- ggplot(subdat,
-                                  aes(x = dose_num)) +
-      geom_point(aes(y = prob, col = is_acceptable_by_dose_num, shape = type), size = 3) +
+    gen_param_plot[[j]] <-
+      ggplot(subdat,
+             aes(x = dose_num)) +
+      geom_point(aes(y = prob, col = is_acceptable_by_dose_num, shape = type),
+                 size = 3) +
       geom_line(data = filter(subdat, dose_num > 0),
                 aes(y = prob, group = type), alpha = 0.25) +
       geom_point(data = filter(subdat, is_acceptable == 1),
@@ -400,7 +429,7 @@ twostage_results <- function(csv = FALSE,
            color = "Acceptable\nDose",
            linetype = "Endpoint",
            shape = "Endpoint") +
-      scale_y_continuous(expand = expand_scale(mult = 0.05)) +
+      scale_y_continuous(expand = expansion(mult = 0.05)) +
       scale_color_manual(values = outcome_colors) +
       guides(col = FALSE,
              shape = guide_legend(nrow = 1)) +
@@ -435,8 +464,8 @@ twostage_results <- function(csv = FALSE,
                      size = RP2DAcceptable),
                  fill = "#FFFFFF00") +
         facet_grid(scenario ~ design_label, scales = "free_y",switch="both") +
-        scale_y_reverse(labels = NULL, expand = expand_scale(add = 0.01)) +
-        scale_x_continuous(expand = expand_scale(add = 0.002)) +
+        scale_y_reverse(labels = NULL, expand = expansion(add = 0.01)) +
+        scale_x_continuous(expand = expansion(add = 0.002)) +
         scale_fill_manual(values = outcome_colors) +
         scale_color_manual(values = c("#FFFFFF00","black"), labels = c("No", "Yes")) +
         scale_size_manual(values = c(0.5, 0.75), labels = c("No", "Yes")) +
@@ -491,7 +520,7 @@ twostage_results <- function(csv = FALSE,
     mutate(design_label =
              factor(design,
                     levels = unique(design),
-                    labels = des_lab,
+                    labels = design_labels,
                     ordered = T),
            scenario =
              factor(scenario,
