@@ -110,8 +110,34 @@ twostage_results <- function(csv = FALSE,
     stop("'primary_objectives' must be a vector with element 'eff_target'")
   }
 
-  # Elizabeth I deleted all of the NULL assignments here. It seems to me like
-  # we don't need them, but I may be wrong?
+  scenario <- NULL
+  dose_num <- NULL
+  true_dlt_prob <- NULL
+  true_eff_prob <- NULL
+  type <- NULL
+  is_acceptable <- NULL
+  design <- NULL
+  array_id <- NULL
+  sim_id <- NULL
+  RP2DCode <- NULL
+  RP2DAcceptable <- NULL
+  key <- NULL
+  value <- NULL
+  RP2DCode_truth <- NULL
+  set_designation <- NULL
+  design_label <- NULL
+  bestP2D <- NULL
+  sum_n <- NULL
+  prop_n <- NULL
+  prob <- NULL
+  is_acceptable_by_dose_num <- NULL
+  text_height <- NULL
+  n_total_enrolled <- NULL
+  mean_patients <- NULL
+  ataccept <- NULL
+  total <- NULL
+  atRP2D <- NULL
+  prop_acc <- NULL
 
   text_size = 4;
   legend_text_size = 7;
