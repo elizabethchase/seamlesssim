@@ -21,9 +21,9 @@ library(cowplot)
 
 \texttt{seamlesssim} is an R package to simulate seamless clinical trials (usually in the oncology setting) and assess some basic operating features of these trials. A seamless trial is one in which the trial aims to estimate both the maximum tolerated dose (MTD) for some treatment and the efficacy of that treatment at the MTD. After completing a seamless trial, trial sponsors may proceed to Phase III with more confidence about what the efficacy of the treatment will be. By using a seamless framework that blends Phases I and II, sponsors may be able to save time, money, and patient resources. 
 
-In @boonstra2020, we gave a broad definition of seamless trials and made some recommendations about features of good seamless trials. In our conception of the seamless framework, we separate the trial into 5 modules. Module 1 provides a first estimate of dose toxicity. In Module 2, efficacy is estimated at the MTD from Module 1. In Module 3, researchers may make changes to trial design based on the results from Modules 1 and 2 (i.e. adding new doses to consider, changing study population, etc.). In Module 4, toxicity is re-estimated (either with the new design changes, or to obtain a more stable estimate). Finally, in Module 5, efficacy is re-estimated. Although we consider 5 modules, only Module 1 is mandatory. If Modules 2-5 are skipped, the seamless trial reduces to a Phase I trial; if Modules 3-5 are skipped; the seamless trial is a standard Phase I/II trial. Other combinations and configurations can be used to encapsulate most of the Phase I, II, and I/II designs that we have seen in the literature.
+In @boonstra2020, we gave a broad definition of seamless trials and made some recommendations about features of good seamless trials. In our conception of the seamless framework, we separate the trial into 4 modules. Module 1 provides a first estimate of dose toxicity. In Module 2, efficacy is estimated at the MTD from Module 1. In Module 3, toxicity is re-estimated to obtain a more stable estimate. Finally, in Module 4, efficacy is re-estimated. Although we consider 4 modules, only Module 1 is mandatory. If Modules 2-4 are skipped, the seamless trial reduces to a Phase I trial; if Modules 3-4 are skipped; the seamless trial is a standard Phase I/II trial. Other combinations and configurations can be used to encapsulate most of the Phase I, II, and I/II designs that we have seen in the literature.
 
-We consider several ways to estimate toxicity and efficacy within each of these modules. \texttt{seamlesssim} considers 4 different approaches for estimating toxicity in Modules 1 and 4 (the continual reassessment method or CRM; the 3+3 design; a de-escalation scheme; and a fixed dose assignment scheme) and 6 different approaches for estimating efficacy in Modules 2 and 5 (a Bayesian interval test; a Bayesian isotonic regression; an inverted score test; a minimum number of responders threshold; a minimum percentage of responders threshold; or no efficacy analysis). For more information on these approaches and their strengths and weaknesses, please see @boonstra2020. Here, we demonstrate how to specify designs and trial features in \texttt{seamlesssim} in order to simulate a trial with those characteristics, and then how to generate some basic summary statistics of the simulated trials. 
+We consider several ways to estimate toxicity and efficacy within each of these modules. \texttt{seamlesssim} considers 4 different approaches for estimating toxicity in Modules 1 and 3 (the continual reassessment method or CRM; the 3+3 design; a de-escalation scheme; and a fixed dose assignment scheme) and 6 different approaches for estimating efficacy in Modules 2 and 4 (a Bayesian interval test; a Bayesian isotonic regression; an inverted score test; a minimum number of responders threshold; a minimum percentage of responders threshold; or no efficacy analysis). For more information on these approaches and their strengths and weaknesses, please see @boonstra2020. Here, we demonstrate how to specify designs and trial features in \texttt{seamlesssim} in order to simulate a trial with those characteristics, and then how to generate some basic summary statistics of the simulated trials. 
 
 ## Installation
 
@@ -63,11 +63,11 @@ To interpret one of these: in scenario 1, we believe that dose 1 has 8\% toxicit
 
 Finally, we need to specify which designs we want to consider, and we need to provide the necessary parameters for each design we're considering. We will consider 3 different designs. They are:
 
-1. Our first design uses 3+3 in Module 1, and then uses a Bayesian interval test in Module 2. For the interval test, it sets its prior parameters as estimating that all 5 doses will have 10\% efficacy (\texttt{prior}\_\texttt{mean}), but its confidence in this prior is low--\texttt{prior}\_\texttt{n}\_\texttt{per} is only 1. Its threshold is \texttt{prob}\_\texttt{threshold} = 30\%, so in order for the trial to proceed, the posterior probability of any of the doses meeting the efficacy threshold of 20\% must be at least 30\%. In Module 4, it then uses a dose-deescalation scheme in 35 patients (\texttt{n} = 35) to continue checking toxicity, and after 10 patients (\texttt{first}\_\texttt{patient}\_\texttt{look} = 10) it will check to see if toxicity exceeds 33\% (\texttt{thresh}\_\texttt{decrease} = 0.33). If so, it will de-escalate the dose. Finally, the design finishes off in Module 5 by using another Bayesian interval test to check efficacy at the end of the trial, with the same prior as was used in Module 2, but now with a higher posterior probabiltiy threshold of 38\%, and using all of the data from Modules 1-5.  
+1. Our first design uses 3+3 in Module 1, and then uses a Bayesian interval test in Module 2. For the interval test, it sets its prior parameters as estimating that all 5 doses will have 10\% efficacy (\texttt{prior}\_\texttt{mean}), but its confidence in this prior is low--\texttt{prior}\_\texttt{n}\_\texttt{per} is only 1. Its threshold is \texttt{prob}\_\texttt{threshold} = 30\%, so in order for the trial to proceed, the posterior probability of any of the doses meeting the efficacy threshold of 20\% must be at least 30\%. In Module 3, it then uses a dose-deescalation scheme in 35 patients (\texttt{n} = 35) to continue checking toxicity, and after 10 patients (\texttt{first}\_\texttt{patient}\_\texttt{look} = 10) it will check to see if toxicity exceeds 33\% (\texttt{thresh}\_\texttt{decrease} = 0.33). If so, it will de-escalate the dose. Finally, the design finishes off in Module 4 by using another Bayesian interval test to check efficacy at the end of the trial, with the same prior as was used in Module 2, but now with a higher posterior probabiltiy threshold of 38\%, and using all of the data from Modules 1-4.  
 
-2. Our second design uses a CRM to assign doses to 25 patients in Module 1. It sets the CRM skeleton and scale parameters (for more information, see @boonstra2020 and @dfcrm2019), and requires that at least 3 patients be assigned to each dose before escalation (\texttt{dose}\_\texttt{cohort}\_\texttt{size} = 3), and that at least 6 patients receive doses before the trial can stop for toxicity (\texttt{earliest}\_\texttt{stop} = 6). It uses a Bayesian interval test to assess efficacy in Module 2, with the same prior as in Design 1, but with a slightly higher posterior probability threshold of 35\%. In Module 4, we continue the CRM from Module 1 in an additional 35 patients, to continue to assess toxicity. Finally, in Module 5, we do the same Bayesian interval test as in Module 2, but now using all of the data from Modules 1-5, and with a much higher posterior probability threshold of 75\%: in order to pass our efficacy standard, the posterior probability of the MTD meeting our efficacy threshold of 20\% must be at least 75\%. 
+2. Our second design uses a CRM to assign doses to 25 patients in Module 1. It sets the CRM skeleton and scale parameters (for more information, see @boonstra2020 and @dfcrm2019), and requires that at least 3 patients be assigned to each dose before escalation (\texttt{dose}\_\texttt{cohort}\_\texttt{size} = 3), and that at least 6 patients receive doses before the trial can stop for toxicity (\texttt{earliest}\_\texttt{stop} = 6). It uses a Bayesian interval test to assess efficacy in Module 2, with the same prior as in Design 1, but with a slightly higher posterior probability threshold of 35\%. In Module 3, we continue the CRM from Module 1 in an additional 35 patients, to continue to assess toxicity. Finally, in Module 4, we do the same Bayesian interval test as in Module 2, but now using all of the data from Modules 1-5, and with a much higher posterior probability threshold of 75\%: in order to pass our efficacy standard, the posterior probability of the MTD meeting our efficacy threshold of 20\% must be at least 75\%. 
 
-3. Our third design uses a CRM in Module 1 with the same parameters as in Design 2. It skips Modules 2 and 3 entirely (so no interim efficacy analysis) and continues its CRM in Module 4 in an additional 35 patients. Then, in Module 5, it does a final efficacy analysis using a Bayesian isotonic regression. For the isotonic regression, it assumes a very small scale parameter (\texttt{alpha}\_\texttt{scale} = 1e7), which corresponds to a fairly noninformative prior on the efficacy across the different doses. For more information on this choice, see @boonstra2020b. The probability of efficacy threshold is quite high (\texttt{prob}\_\texttt{threshold} = 0.87)--in order to advance to further study, the posterior probability that the MTD is effective in at least 20\% of patients must be greater than 87\%.
+3. Our third design uses a CRM in Module 1 with the same parameters as in Design 2. It skips Module 2 entirely (so no interim efficacy analysis) and continues its CRM in Module 3 in an additional 35 patients. Then, in Module 4, it does a final efficacy analysis using a Bayesian isotonic regression. For the isotonic regression, it assumes a very small scale parameter (\texttt{alpha}\_\texttt{scale} = 1e7), which corresponds to a fairly noninformative prior on the efficacy across the different doses. For more information on this choice, see @boonstra2020b. The probability of efficacy threshold is quite high (\texttt{prob}\_\texttt{threshold} = 0.87)--in order to advance to further study, the posterior probability that the MTD is effective in at least 20\% of patients must be greater than 87\%.
 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 design_list = list(
@@ -83,14 +83,14 @@ design_list = list(
       prior_n_per = 1,
       include_stage1_data = T
     ),
-    module4 = list(
+    module3 = list(
       name = "empiric", 
       n = 35,
       rule = "local",
       first_patient_look = 10,
       thresh_decrease = 0.33
     ),
-    module5 = list(
+    module4 = list(
       name = "bayes",
       prob_threshold = 0.38,
       prior_mean = rep(0.1, 5),
@@ -117,11 +117,11 @@ design_list = list(
       prior_n_per = 1,
       include_stage1_data = T
     ),
-    module4 = list(
+    module3 = list(
       name = "continue_crm", 
       n = 35
     ),
-    module5 = list(
+    module4 = list(
       name = "bayes",
       prob_threshold = 0.75,
       prior_mean = rep(0.1, 5),
@@ -141,11 +141,11 @@ design_list = list(
       dose_cohort_size_first_only = T,
       earliest_stop = 6
     ),
-    module4 = list(
+    module3 = list(
       name = "continue_crm", 
       n = 35
     ),
-    module5 = list(
+    module4 = list(
       name = "bayes_isoreg",
       prob_threshold = 0.87,
       alpha_scale = 1e7,
@@ -208,7 +208,7 @@ Each of these function calls will result in a list with many elements. Of these 
 
 2. \texttt{sim}\_\texttt{data}\_\texttt{stage1}. A sheet with summary information at the end of Stage 1 (Modules 1 and 2). This includes the estimated MTD at the end of Stage 1, any evidence of efficacy at the end of Stage 1, how many patients were enrolled and how many were enrolled to the MTD, and similar.
 
-3. \texttt{sim}\_\texttt{data}\_\texttt{stage2}. The same as \texttt{sim}\_\texttt{data}\_\texttt{stage1}, but at the end of Stage 2 (Modules 1-5).
+3. \texttt{sim}\_\texttt{data}\_\texttt{stage2}. The same as \texttt{sim}\_\texttt{data}\_\texttt{stage1}, but at the end of Stage 2 (Modules 1-4).
 
 For users with a good grasp of data management and plotting techniques in R, these data can be used to create most summary statistics and plots that would be useful in a trial protocol. However, for users who are less confident in R (or who want a quick synopsis of the simulation results before doing more personalized descriptives), it may be useful to use the \texttt{twostage}\_\texttt{results} function, which provides some basic plots and tables from the three datasets described above. 
 
@@ -241,8 +241,7 @@ To use the function, we can do one of three things. For a large number of files,
 
 #How to read the results into twostage_results from the workspace:
 myfiles <- c("mysims_scen1", "mysims_scen2", "mysims_scen3")
-myresults <- twostage_results(csv = FALSE,
-                             files = myfiles,
+myresults <- twostage_results(files = myfiles,
                              filepath = FALSE,
                              primary_objectives = primary_objectives,
                              design_labels = design_labels)

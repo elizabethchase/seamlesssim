@@ -1,8 +1,8 @@
 #' Function to update a CRM skeleton in a two-stage CRM.
 #'
 #' This function updates an initial crm skeleton when using the empiric (power) model, after
-#' some data have been gathered on the dose-toxicity curve. This will be used when module3
-#' includes the option to 'update_crm'.
+#' some data have been gathered on the dose-toxicity curve. This code is currently not used,
+#' but is included for posterity.
 #'
 #' @param old_skeleton A numeric vector with entries between 0 and 1; the initial skeleton.
 #' @param tox A vector with binary entries {0,1} representing the outcomes of the patients;
