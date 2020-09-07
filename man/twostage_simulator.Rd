@@ -47,9 +47,9 @@ scenarios).}
 of lists. The highest level of the list corresponds to each overall design to to be
 evaluated; this should be as long as the number of designs that the user wants to compare.
 The next level of the list gives the list of module choices for each design. It must have a named
-component module1 and will optionally have named components module2...module5, taken from
+component module1 and will optionally have named components module2...module4, taken from
 the bolded values of Figure 1 in the manuscript referenced above. If any of module2 to
-module5 are not provided, they are assumed to correspond to a choice of module2 =
+module4 are not provided, they are assumed to correspond to a choice of module2 =
 list(name = "none"). Finally, the lowest level of the list gives the list of choices for each particular
 module. Each list must have one entry named "name" to indicate the choice of module, and
 also a value for every argument that is specific to that module. See the vignette for
@@ -94,7 +94,7 @@ is used in parallel.}
 
 \item{do_efficient_simulation}{If TRUE, the simulator will run in such a way that, to the
 maximum possible extent, simulated data will be reused between consecutive designs. So, for
-example, design 1 may be identical to design 2 up to module 4, in which case the data
+example, design 1 may be identical to design 2 up to module 3, in which case the data
 from modules 1 and 2 can be reused from design 1 to design 2. If FALSE, each design will be
 simulated independently of each other design, but the whole simulator will take longer to run.}
 
@@ -112,17 +112,17 @@ The function returns a named list with entries:
     status of the trial at the end of module 2 of each design.}
    \item{sim_data_stage2}{A data.frame with number of rows equal to length(design_list) * n_sim,
     i.e. one per design per simulation. It gives trial-level summary information about the
-    status of the trial at the end of module 5 of each design.}
+    status of the trial at the end of module 4 of each design.}
     \item{dose_outcome_curves}{The user-inputted argument to this function having the same name.}
     \item{titecrm_args}{The list of common arguments that were used for the crm simulator.}
     \item{design_list}{The user-inputted argument to this function having the same name.}
     \item{design_description}{A character matrix with number of rows equal to length(design_list)
      and number of columns equal to the total number of modules used in the trial, presumably
-     5. It is meant to give a concise, simple summary and comparison of each design, without
+     4. It is meant to give a concise, simple summary and comparison of each design, without
      going into the details of each design.}
      \item{shared_design_elements}{An integer matrix with number of rows equal to length(design_list)
      and number of columns equal to the total number of modules used in the trial, presumably
-     5. It gives the simulators assessment of which design elements could be recycled (therefore
+     4. It gives the simulators assessment of which design elements could be recycled (therefore
      saving time if do_efficient_simulation==TRUE).}
      \item{random_seed}{The user-inputted argument to this function having the same name.}
 }

@@ -81,6 +81,7 @@
 #' scale_color_manual guides guide_legend theme element_text margin element_blank geom_bar geom_text
 #' geom_col scale_y_reverse scale_x_continuous scale_fill_manual scale_size_manual geom_boxplot
 #' position_dodge2 ylab xlab scale_fill_discrete unit
+#' @importFrom forcats fct_inorder fct_relabel
 #' @import RColorBrewer
 #' @export
 twostage_results <- function(csv = FALSE,
@@ -431,14 +432,20 @@ twostage_results <- function(csv = FALSE,
              1 - (c(0,cumsum(prop_n)[-length(prop_n)]) + prop_n/2)) %>%
     ungroup()
 
-  # Elizabeth can you add the RColorBrewer package as another dependency?
-  outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
-
   gen_param_plot <-
     vector("list", length = length(unique(generating_params_tall$scen_designation)))
 
   for (j in unique(generating_params_tall$scen_designation)){
     subdat <- filter(generating_params_tall, scen_designation==j)
+    if (setequal(c("1", "3"), subdat$is_acceptable_by_dose_num)){
+      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
+    } else if (setequal(c("2", "4"), subdat$is_acceptable_by_dose_num)){
+      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
+    } else if (setequal(c("2", "3", "4"), subdat$is_acceptable_by_dose_num)){
+      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
+    } else if (setequal(c("1", "2", "3", "4"), subdat$is_acceptable_by_dose_num)){
+      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
+    }
     gen_param_plot[[j]] <-
       ggplot(subdat,
              aes(x = dose_num)) +
@@ -475,6 +482,15 @@ twostage_results <- function(csv = FALSE,
   for (j in unique(trial_summary_RP2D$set_designation)){
     for (k in unique(trial_summary_RP2D$scen_designation)){
       subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
+      if (setequal(c("No Rec\n(correct)", "Rec\n(unaccept)"), subdat$RPTDCode)){
+        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
+      } else if (setequal(c("No Rec\n(wrong)","Rec\n(accept)"), subdat$RPTDCode)){
+        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
+      } else if (setequal(c("No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RPTDCode)){
+        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
+      } else if (setequal(c("No Rec\n(correct)","No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RPTDCode)){
+        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
+      }
       myplot =
         ggplot(data = subdat,
                aes(x = 1,

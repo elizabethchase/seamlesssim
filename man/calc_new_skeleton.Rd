@@ -27,6 +27,6 @@ A named list containing elements new_skeleton (the updated skeleton) and new_sca
 }
 \description{
 This function updates an initial crm skeleton when using the empiric (power) model, after
-some data have been gathered on the dose-toxicity curve. This will be used when module3
-includes the option to 'update_crm'.
+some data have been gathered on the dose-toxicity curve. This code is currently not used,
+but is included for posterity.
 }
