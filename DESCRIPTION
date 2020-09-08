@@ -37,8 +37,8 @@ Imports:
     data.table,
     sjmisc,
     RColorBrewer,
-    binom
-Suggests:
+    binom,
+    forcats,
     cowplot,
     knitr
 LinkingTo: 

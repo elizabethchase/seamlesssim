@@ -8,8 +8,8 @@ basic plots and summary tables.}
 twostage_results(
   csv = FALSE,
   stage2folder = NULL,
-  finaldatfolder = NULL,
-  dose_outcome_curves = NULL,
+  patientdatfolder = NULL,
+  dose_outcome_curves_list = NULL,
   files = NULL,
   filepath = TRUE,
   primary_objectives = NULL,
@@ -26,11 +26,12 @@ as .csv file(s) (if .csv, then TRUE).}
 nothing but sim_data_stage2 output from twostage_simulator, saved as .csv file(s).
 This should only be provided if csv = TRUE.}
 
-\item{finaldatfolder}{A character string giving the filepath to a folder containing
+\item{patientdatfolder}{A character string giving the filepath to a folder containing
 nothing but patient_data output from twostage_simulator, saved as .csv file(s).
 This should only be provided if csv = TRUE.}
 
-\item{dose_outcome_curves}{A list containing three named elements and an optional fourth
+\item{dose_outcome_curves_list}{A list of lists, with each list element containing three named
+elements and an optional fourth
 element: tox_curve, eff_curve, scenario, and, optionally, eff_curve_stage2. tox_curve is
 the true toxicity curve of the doses; eff_curve is the true efficacy curve of the doses;
 scenario is an identifier of which true data-generating scenario is being run (meant to be
@@ -84,7 +85,10 @@ plots contains:
    scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation
    at all. If the number of designs under consideration exceeds design_per_page or the number of
    scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
-   first plot, we would run: results$plots$acc_dose_rec_param_plot[[1]] and so on for further plots.}
+   first plot, we would run: results$plots$acc_dose_rec_plot[[1]] and so on for further plots.}
+   \item{dose_over_time_plot}{This is a filled barplot giving the distribution of dose assignments by
+   time, where time is measured by patient number. To call the
+   first plot, we would run: results$plots$dose_over_time_plot[[1]] and so on for further plots.}
    \item{n_patients_plot}{This is a boxplot of the number of patients enrolled for each design and
    scenario combination across the different simulated trials.}
    \item{n_patients_RP2D_plot}{This is a boxplot of the number of patients who received the final
