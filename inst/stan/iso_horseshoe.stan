@@ -30,10 +30,9 @@ transformed parameters {
   real<lower = 0.0> sum_alpha;
   tau_glob_sq = tau_glob_base_sq * tau_glob_scale_sq;
   lambda_sq = lambda_base_sq .* lambda_scale_sq;
-  for(i in 1:n_groups_stan) {
+  for(i in 1:(n_groups_stan+1)) {
     theta[i] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_glob_sq * lambda_sq[i])));
   }
-  theta[n_groups_stan + 1] = 1.0 / sqrt(1.0 + (1.0 / (lambda_sq[n_groups_stan + 1])));
   alpha = (theta .* alpha_raw);
   sum_alpha = sum(alpha);
   xi[1] = alpha[1] / sum_alpha;
