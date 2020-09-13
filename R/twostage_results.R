@@ -482,13 +482,13 @@ twostage_results <- function(csv = FALSE,
   for (j in unique(trial_summary_RP2D$set_designation)){
     for (k in unique(trial_summary_RP2D$scen_designation)){
       subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
-      if (setequal(c("No Rec\n(correct)", "Rec\n(unaccept)"), subdat$RPTDCode)){
+      if (setequal(c("No Rec\n(correct)", "Rec\n(unaccept)"), subdat$RP2DCode)){
         outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
-      } else if (setequal(c("No Rec\n(wrong)","Rec\n(accept)"), subdat$RPTDCode)){
+      } else if (setequal(c("No Rec\n(wrong)","Rec\n(accept)"), subdat$RP2DCode)){
         outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
-      } else if (setequal(c("No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RPTDCode)){
+      } else if (setequal(c("No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RP2DCode)){
         outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
-      } else if (setequal(c("No Rec\n(correct)","No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RPTDCode)){
+      } else if (setequal(c("No Rec\n(correct)","No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RP2DCode)){
         outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
       }
       myplot =
@@ -571,8 +571,7 @@ twostage_results <- function(csv = FALSE,
            scenario =
              factor(scenario,
                     levels = unique(scenario)[order(unique(scenario))],
-                    labels = paste0("Scenario ", unique(scenario)[order(unique(scenario))]),
-                    ordered = T),
+                    labels = paste0("Scenario ", unique(scenario)[order(unique(scenario))])),
            designnum =
              factor(design) %>%
              fct_inorder() %>%
