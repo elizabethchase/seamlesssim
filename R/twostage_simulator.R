@@ -77,6 +77,8 @@
 #' example, design 1 may be identical to design 2 up to module 3, in which case the data
 #' from modules 1 and 2 can be reused from design 1 to design 2. If FALSE, each design will be
 #' simulated independently of each other design, but the whole simulator will take longer to run.
+#' @param verbose If TRUE, the simulator will print all Stan and other function output; if FALSE, it
+#' will not. The default is FALSE.
 #' @param random_seed A positive integer seed set prior to starting the simulations.
 #' @return The function returns a named list with entries:
 #' \describe{

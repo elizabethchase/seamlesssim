@@ -15,7 +15,11 @@ twostage_results(
   primary_objectives = NULL,
   design_labels = NULL,
   scen_per_page = 10,
-  design_per_page = 3
+  design_per_page = 3,
+  prop_label_size = 4,
+  min_prop_to_write = 0.25,
+  legend_text_size = 6,
+  text_size = 9
 )
 }
 \arguments{
@@ -62,6 +66,14 @@ be printed per page. This can be at most 10 (the default is 10).}
 
 \item{design_per_page}{A numeric value indicating the number of designs that should be printed per
 page. This can be at most 3 (the default is 3).}
+
+\item{prop_label_size}{The value of the 'size' aesthetic in calls to geom_text (the default is 4).}
+
+\item{min_prop_to_write}{The smallest proportion to annotate in the stacked bar charts (the default is 0.25).}
+
+\item{legend_text_size}{The value of the 'size' argument for the legend elements in ggplots (the default is 6).}
+
+\item{text_size}{The value of the 'size' argument for the other text elements in ggplots (the default is 9).}
 }
 \value{
 The function returns a named list containing two items: "plots" and "tables".
@@ -77,8 +89,12 @@ tables contains:
 }
 plots contains:
 \describe{
-   \item{gen_param_plot}{This is a list of plots providing the same information as in generating_params_for_display.
-   If the number of designs under consideration exceeds design_per_page or the number of
+   \item{gen_params_plot_blue}{This is a list of plots providing the same information as in generating_params_for_display,
+   in a blue color palette. If the number of designs under consideration exceeds design_per_page or the number of
+   scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
+   first plot, we would run: results$plots$gen_param_plot[[1]] and so on for further plots.}
+   \item{gen_params_plot_redgreen}{This is a list of plots providing the same information as in generating_params_for_display,
+   in a red-green color palette. If the number of designs under consideration exceeds design_per_page or the number of
    scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
    first plot, we would run: results$plots$gen_param_plot[[1]] and so on for further plots.}
    \item{acc_dose_rec_plot}{This is a plot giving which proportion of trials for each design and

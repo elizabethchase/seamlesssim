@@ -38,6 +38,11 @@
 #' be printed per page. This can be at most 10 (the default is 10).
 #' @param design_per_page A numeric value indicating the number of designs that should be printed per
 #' page. This can be at most 3 (the default is 3).
+#' @param prop_label_size The value of the 'size' aesthetic in calls to geom_text (the default is 4).
+#' @param min_prop_to_write The smallest proportion to annotate in the stacked bar charts (the default is 0.25).
+#' @param legend_text_size The value of the 'size' argument for the legend elements in ggplots (the default is 6).
+#' @param text_size The value of the 'size' argument for the other text elements in ggplots (the default is 9).
+
 #' @return The function returns a named list containing two items: "plots" and "tables".
 #' tables contains:
 #' \describe{
@@ -51,8 +56,12 @@
 #' }
 #' plots contains:
 #' \describe{
-#'    \item{gen_param_plot}{This is a list of plots providing the same information as in generating_params_for_display.
-#'    If the number of designs under consideration exceeds design_per_page or the number of
+#'    \item{gen_params_plot_blue}{This is a list of plots providing the same information as in generating_params_for_display,
+#'    in a blue color palette. If the number of designs under consideration exceeds design_per_page or the number of
+#'    scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
+#'    first plot, we would run: results$plots$gen_param_plot[[1]] and so on for further plots.}
+#'    \item{gen_params_plot_redgreen}{This is a list of plots providing the same information as in generating_params_for_display,
+#'    in a red-green color palette. If the number of designs under consideration exceeds design_per_page or the number of
 #'    scenarios under consideration exceeds scen_per_page, the list will contain multiple plots. To call the
 #'    first plot, we would run: results$plots$gen_param_plot[[1]] and so on for further plots.}
 #'    \item{acc_dose_rec_plot}{This is a plot giving which proportion of trials for each design and
@@ -82,6 +91,7 @@
 #' geom_col scale_y_reverse scale_x_continuous scale_fill_manual scale_size_manual geom_boxplot
 #' position_dodge2 ylab xlab scale_fill_discrete unit
 #' @importFrom forcats fct_inorder fct_relabel
+#' @importFrom purrr map_dbl
 #' @import RColorBrewer
 #' @export
 twostage_results <- function(csv = FALSE,
@@ -94,10 +104,10 @@ twostage_results <- function(csv = FALSE,
                              design_labels = NULL,
                              scen_per_page = 10,
                              design_per_page = 3,
-                             prop_label_size = 4, # the value of the 'size' aesthetic in calls to geom_text
-                             min_prop_to_write = 0.25, # the smallest proportion to annotate in the stacked bar charts
-                             legend_text_size = 6, # the value of the 'size' argument for the legend elements in ggplots
-                             text_size = 9){ # the value of the 'size' argument for the other text elements in ggplots
+                             prop_label_size = 4,
+                             min_prop_to_write = 0.25,
+                             legend_text_size = 6,
+                             text_size = 9){
 
   if (scen_per_page > 10){
     stop("'scen_per_page' can be at most 10")
