@@ -118,6 +118,7 @@ twostage_simulator = function(array_id = 1,
                               sim_labels = NULL,
                               design_labels = NULL,
                               do_efficient_simulation = T,
+                              verbose = F,
                               random_seed = 1) {
 
   # Setup----
@@ -537,7 +538,7 @@ twostage_simulator = function(array_id = 1,
      any(design_description[,"module4"] == "bayes_isoreg")) {
     #Fill in STAN default parameters
 
-    if (is.na(stan_args)){
+    if (all(is.na(stan_args))) {
       stan_args <- list(
         n_mc_warmup = 1e3,
         n_mc_samps = 2e3,
@@ -623,7 +624,7 @@ twostage_simulator = function(array_id = 1,
     # simulated data as much as possible. Otherwise, each iteration completely
     # regenerates the data
     if(shared_design_elements[k,"module1"] != k) {
-      cat("reusing Module 1 conclusions...\n\n");
+      if(verbose) {cat("reusing Module 1 conclusions...\n\n");}
       if(curr_design[["module1"]]$name == "3pl3") {
         module1_dat = store_module1_dat[[shared_design_elements[k,"module1"]]];
         module1_dat[,"design"] = design_list_reorder[k];
@@ -811,7 +812,7 @@ twostage_simulator = function(array_id = 1,
 
     if(all(shared_design_elements[k,c("module1","module2")] != k) &&
        duplicated(shared_design_elements[1:k,paste0("module",1:2)])[k]) {
-      cat("reusing Module 2 conclusions...\n\n");
+      if(verbose) {cat("reusing Module 2 conclusions...\n\n");}
       which_duplicate_of =
         which(rowSums(abs(shared_design_elements[1:(k-1),paste0("module",1:2),drop = F] -
                             shared_design_elements[rep(k, k-1),paste0("module",1:2),drop=F])) < eps)[1];
@@ -988,7 +989,7 @@ twostage_simulator = function(array_id = 1,
     if(curr_design[["module3"]]$name != "none" &&
        all(shared_design_elements[k,c("module1","module2","module3")] != k) &&
        duplicated(shared_design_elements[1:k,paste0("module",1:3)])[k]) {
-      cat("reusing Module 3 conclusions...\n\n");
+      if(verbose) {cat("reusing Module 3 conclusions...\n\n");}
       which_duplicate_of =
         which(rowSums(abs(shared_design_elements[1:(k-1),paste0("module",1:3),drop = F] -
                             shared_design_elements[rep(k, k-1),paste0("module",1:3),drop = F])) < eps)[1];

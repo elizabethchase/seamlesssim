@@ -93,7 +93,11 @@ twostage_results <- function(csv = FALSE,
                              primary_objectives = NULL,
                              design_labels = NULL,
                              scen_per_page = 10,
-                             design_per_page = 3){
+                             design_per_page = 3,
+                             prop_label_size = 4, # the value of the 'size' aesthetic in calls to geom_text
+                             min_prop_to_write = 0.25, # the smallest proportion to annotate in the stacked bar charts
+                             legend_text_size = 6, # the value of the 'size' argument for the legend elements in ggplots
+                             text_size = 9){ # the value of the 'size' argument for the other text elements in ggplots
 
   if (scen_per_page > 10){
     stop("'scen_per_page' can be at most 10")
@@ -139,10 +143,6 @@ twostage_results <- function(csv = FALSE,
   total <- NULL
   atRP2D <- NULL
   prop_acc <- NULL
-
-  text_size = 4;
-  legend_text_size = 7;
-  min_prop_to_write = 0.25;
 
   generating_params_for_display =
     #matrix(nrow = 0, ncol = 5, dimnames = list(NULL, c("Scenario","True DLT Probability","True Efficacy Probability","True MTD","Acceptable/Desirable Dose")));
@@ -211,7 +211,7 @@ twostage_results <- function(csv = FALSE,
           bind_rows(generating_params_for_display, newrow);
 
         mtd_as_logical = (0:length(dat$dose_outcome_curves$tox_curve)) == max(c(which(dat$dose_outcome_curves$tox_curve <= primary_objectives[["tox_target"]] +
-                                                                                         primary_objectives[["tox_delta_no_exceed"]]),0))
+                                                                                        primary_objectives[["tox_delta_no_exceed"]]),0))
         generating_params =
           bind_rows(generating_params,
                     tibble(
@@ -252,6 +252,7 @@ twostage_results <- function(csv = FALSE,
 
     col_specs =
       cols(.default = col_double(),
+           design = col_character(),
            estMTDCode = col_character(),
            RP2DCode = col_character())
 
@@ -298,7 +299,7 @@ twostage_results <- function(csv = FALSE,
         bind_rows(generating_params_for_display, newrow);
 
       mtd_as_logical = (0:length(dose_outcome_curves_list[[i]]$tox_curve)) == max(c(which(dose_outcome_curves_list[[i]]$tox_curve <= primary_objectives[["tox_target"]] +
-                                                                                       primary_objectives[["tox_delta_no_exceed"]]),0))
+                                                                                            primary_objectives[["tox_delta_no_exceed"]]),0))
       generating_params =
         bind_rows(generating_params,
                   tibble(
@@ -314,17 +315,8 @@ twostage_results <- function(csv = FALSE,
     }
   }
 
-  ndose <- length(unique(generating_params[,"dose_num"]))-1
+  n_dose <- (generating_params %>% pull(dose_num) %>% unique() %>% length()) - 1
 
-  #generating_params <- generating_params[order(generating_params[, "scenario"]),]
-  #scen_num <- vector(length=nrow(generating_params))
-  #for (j in 1:length(unique(generating_params[,"scenario"]))){
-  #  myind <- which(generating_params[, "scenario"]==unique(generating_params[, "scenario"])[j])
-  #  scen_num[myind] <- j
-  #}
-  #scen_designation <- ceiling(scen_num/scen_per_page)
-
-  #generating_params <- cbind(generating_params, scen_designation)
   generating_params <-
     generating_params %>%
     arrange(scenario) %>%
@@ -364,8 +356,6 @@ twostage_results <- function(csv = FALSE,
     }
   }
 
-  # Elizabeth: can you confirm that the following block of code is equivalent
-  # to the commented code that immediately follows?
   trial_summary <-
     arrange(trial_summary, design, scenario) %>%
     mutate(designnum =
@@ -378,16 +368,6 @@ twostage_results <- function(csv = FALSE,
              fct_inorder() %>%
              as.numeric(),
            scen_designation = ceiling(scennum / scen_per_page))
-  #for (j in 1:length(unique(trial_summary$design))){
-  #  trial_summary$designnum[trial_summary$design==unique(trial_summary$design)[j]] <- j
-  #}
-  #trial_summary$set_designation <- ceiling(trial_summary$designnum/design_per_page)
-
-  #trial_summary <- arrange(trial_summary, scenario)
-  #for (j in 1:length(unique(trial_summary$scenario))){
-  #  trial_summary$scennum[trial_summary$scenario==unique(trial_summary$scenario)[j]] <- j
-  #}
-  #trial_summary$scen_designation <- ceiling(trial_summary$scennum/scen_per_page)
 
   trial_summary =
     trial_summary %>%
@@ -432,25 +412,32 @@ twostage_results <- function(csv = FALSE,
              1 - (c(0,cumsum(prop_n)[-length(prop_n)]) + prop_n/2)) %>%
     ungroup()
 
-  gen_param_plot <-
+  gen_param_plot_redgreen <-
+    gen_param_plot_blue <-
     vector("list", length = length(unique(generating_params_tall$scen_designation)))
 
-  for (j in unique(generating_params_tall$scen_designation)){
+  for (j in unique(generating_params_tall$scen_designation)) {
     subdat <- filter(generating_params_tall, scen_designation==j)
+    # across all scenarios on this page, this is how many types of dose levels there are:
     if (setequal(c("1", "3"), subdat$is_acceptable_by_dose_num)){
-      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
+      # no dose levels are acceptable in all scenarios
+      outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
     } else if (setequal(c("2", "4"), subdat$is_acceptable_by_dose_num)){
-      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
+      # all dose levels are acceptable in all scenarios
+      outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
     } else if (setequal(c("2", "3", "4"), subdat$is_acceptable_by_dose_num)){
-      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
+      # one or more dose level is acceptable in all scenarios
+      outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
     } else if (setequal(c("1", "2", "3", "4"), subdat$is_acceptable_by_dose_num)){
-      outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
+      # some scenarios have no acceptable dose levels; other
+      # scenarios have one or more acceptable dose level
+      outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
     }
-    gen_param_plot[[j]] <-
+    outcome_colors_blue = RColorBrewer::brewer.pal(n_dose + 1, "Blues")
+
+    base_plot <-
       ggplot(subdat,
              aes(x = dose_num)) +
-      geom_point(aes(y = prob, col = is_acceptable_by_dose_num, shape = type),
-                 size = 3) +
       geom_line(data = filter(subdat, dose_num > 0),
                 aes(y = prob, group = type), alpha = 0.25) +
       geom_point(data = filter(subdat, is_acceptable == 1),
@@ -461,14 +448,12 @@ twostage_results <- function(csv = FALSE,
       facet_grid(scenario ~ ., scales = "free_y") +
       labs(x = "Dose Number",
            y = "",
-           color = "Acceptable\nDose",
            linetype = "Endpoint",
            shape = "Endpoint") +
       scale_y_continuous(expand = expansion(mult = 0.05)) +
-      scale_color_manual(values = outcome_colors) +
       guides(col = FALSE,
              shape = guide_legend(nrow = 1)) +
-      theme(text = element_text(size = 10),
+      theme(text = element_text(size = text_size),
             legend.position = "top",
             legend.text = element_text(size = legend_text_size),
             legend.title = element_text(size = legend_text_size),
@@ -476,21 +461,43 @@ twostage_results <- function(csv = FALSE,
             legend.spacing = unit(1,units = "pt"),
             panel.grid.minor = element_blank(),
             panel.grid.major.x = element_blank());
+
+    gen_param_plot_redgreen[[j]] <-
+      base_plot +
+      geom_point(aes(y = prob,
+                     col = is_acceptable_by_dose_num,
+                     shape = type),
+                 size = 3) +
+      scale_color_manual(values = outcome_colors_redgreen)
+
+    gen_param_plot_blue[[j]] <-
+      base_plot +
+      geom_point(aes(y = prob,
+                     col = factor(dose_num),
+                     shape = type),
+                 size = 3) +
+      scale_color_manual(values = outcome_colors_blue)
   }
 
   acc_dose_rec_plot <- vector("list", length = 0)
   for (j in unique(trial_summary_RP2D$set_designation)){
     for (k in unique(trial_summary_RP2D$scen_designation)){
       subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
+      # across all scenarios on this page, this is how many types of dose levels there are:
       if (setequal(c("No Rec\n(correct)", "Rec\n(unaccept)"), subdat$RP2DCode)){
-        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
+        # no dose levels are acceptable in all scenarios
+        outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
       } else if (setequal(c("No Rec\n(wrong)","Rec\n(accept)"), subdat$RP2DCode)){
-        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
+        # all dose levels are acceptable in all scenarios
+        outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,5)];
       } else if (setequal(c("No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RP2DCode)){
-        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
+        # one or more dose level is acceptable in all scenarios
+        outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(2,1,5)];
       } else if (setequal(c("No Rec\n(correct)","No Rec\n(wrong)","Rec\n(unaccept)","Rec\n(accept)"), subdat$RP2DCode)){
-        outcome_colors = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
+        # some scenarios have no acceptable dose levels; other
+        # scenarios have one or more acceptable dose level outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,2,1,5)];
       }
+
       myplot =
         ggplot(data = subdat,
                aes(x = 1,
@@ -502,15 +509,15 @@ twostage_results <- function(csv = FALSE,
         geom_text(data = filter(subdat, prop_n > min_prop_to_write),
                   aes(x = 1,
                       y = text_height,
-                      label = paste0(formatC(100 * prop_n, digits = 1, format = "f"),"%")),
-                  size = text_size) +
+                      label = paste0(formatC(100 * prop_n, digits = 0, format = "f"),"%")),
+                  size = prop_label_size) +
         geom_col(aes(color = RP2DAcceptable,
                      size = RP2DAcceptable),
                  fill = "#FFFFFF00") +
         facet_grid(scenario ~ design_label, scales = "free_y",switch="both") +
         scale_y_reverse(labels = NULL, expand = expansion(add = 0.01)) +
         scale_x_continuous(expand = expansion(add = 0.002)) +
-        scale_fill_manual(values = outcome_colors) +
+        scale_fill_manual(values = outcome_colors_redgreen) +
         scale_color_manual(values = c("#FFFFFF00","black"), labels = c("No", "Yes")) +
         scale_size_manual(values = c(0.5, 0.75), labels = c("No", "Yes")) +
         labs(x="Design",
@@ -520,7 +527,7 @@ twostage_results <- function(csv = FALSE,
              fill = "Outcome") +
         guides(color = guide_legend(nrow = 1),
                fill = guide_legend(nrow = 1)) +
-        theme(text = element_text(size = 10),
+        theme(text = element_text(size = text_size),
               legend.position = "top",
               legend.text = element_text(size = legend_text_size),
               legend.title = element_text(size = legend_text_size),
@@ -606,11 +613,20 @@ twostage_results <- function(csv = FALSE,
     mutate(dose_num = factor(dose_num,
                              ordered = T),
            is_acceptable = factor(is_acceptable,
-                                  levels = c(0, 1),
+                                  levels = c("FALSE", "TRUE"),
                                   labels = c("No","Yes")));
 
 
   dose_over_time_plot <- vector("list", length = 0)
+
+  all_subj_ids <-
+    patient_summary_num_atDoseLevels %>%
+    pull(subj_id) %>%
+    unique()
+
+  subj_ids_to_print <-
+    map_dbl(c(10, 30, 50), ~ all_subj_ids[which.min(abs(all_subj_ids - .x))])
+
   for (j in unique(patient_summary_num_atDoseLevels$set_designation)) {
     for (k in unique(patient_summary_num_atDoseLevels$scen_designation)) {
 
@@ -618,7 +634,7 @@ twostage_results <- function(csv = FALSE,
         filter(patient_summary_num_atDoseLevels,
                set_designation == j,
                scen_designation == k,
-               subj_id %in% c(10, 30, 50))
+               subj_id %in% subj_ids_to_print)
 
       myplot =
         ggplot(data = subdat,
@@ -634,23 +650,23 @@ twostage_results <- function(csv = FALSE,
                  fill = "#FFFFFF00") +
         geom_text(data = filter(subdat, prop_n > min_prop_to_write),
                   aes(y = text_height,
-                      label = paste0(formatC(100 * prop_n, digits = 1, format = "f"),"%")),
-                  size = text_size) +
+                      label = paste0(formatC(100 * prop_n, digits = 0, format = "f"),"%")),
+                  size = prop_label_size) +
         facet_grid(scenario ~ design_label, scales = "free_y", switch = "y") +
         scale_y_reverse(labels = NULL, expand = expansion(add = 0.01)) +
         scale_x_discrete(expand = expansion(add = 0.002)) +
         scale_fill_brewer(palette = "Blues") +
         scale_color_manual(values = c("#FFFFFF00","black")) +
         scale_size_manual(values = c(0.5, 0.75)) +
-        labs(x="Subj ID",
-             y="",
+        labs(x = "Subj ID",
+             y = "",
              color = "Acceptable",
              size = "Acceptable",
              fill = "Dose Number") +
         guides(color = guide_legend(nrow = 1),
                size = guide_legend(nrow = 1),
                fill = guide_legend(nrow = 1)) +
-        theme(text = element_text(size = 10),
+        theme(text = element_text(size = text_size),
               legend.position = "top",
               legend.text = element_text(size = legend_text_size),
               legend.title = element_text(size = legend_text_size),
@@ -697,8 +713,9 @@ twostage_results <- function(csv = FALSE,
   )
 
   plots <- list(
-    gen_params_plot = gen_param_plot, #gen_param_plot[[1]],
-    acc_dose_rec_plot = acc_dose_rec_plot, #acc_dose_rec_plot[[1]],
+    gen_params_plot_redgreen = gen_param_plot_redgreen,
+    gen_params_plot_blue = gen_param_plot_blue,
+    acc_dose_rec_plot = acc_dose_rec_plot,
     dose_over_time_plot = dose_over_time_plot,
     n_patients_plot = samp_plot,
     n_patients_RP2D_plot = samp_RP2D_plot,

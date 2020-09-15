@@ -12,7 +12,6 @@
 #'     \item{local_dof_stan}{This has default value 1.}
 #'     \item{global_dof_stan}{This has default value 1.}
 #'     \item{alpha_scale_stan}{This has default value 1.}
-#'     \item{slab_precision_stan}{This has default value 1.}
 #' }
 #' For more information on these arguments, please see rstan documentation.
 #' @param sample_from_prior_only A logical value. If TRUE, then the provided values of 'x'
@@ -75,8 +74,7 @@ bayesian_isotonic = function(data_grouped = NULL,
                              stan_args = list(
                                local_dof_stan = 1,
                                global_dof_stan = 1,
-                               alpha_scale_stan = 1,
-                               slab_precision_stan = 1),
+                               alpha_scale_stan = 1),
                              sample_from_prior_only = F,
                              conf_level = 0.50,
                              conf_level_direction = "both",
