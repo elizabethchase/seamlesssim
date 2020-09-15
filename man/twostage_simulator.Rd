@@ -15,6 +15,7 @@ twostage_simulator(
   sim_labels = NULL,
   design_labels = NULL,
   do_efficient_simulation = T,
+  verbose = F,
   random_seed = 1
 )
 }
@@ -97,6 +98,9 @@ maximum possible extent, simulated data will be reused between consecutive desig
 example, design 1 may be identical to design 2 up to module 3, in which case the data
 from modules 1 and 2 can be reused from design 1 to design 2. If FALSE, each design will be
 simulated independently of each other design, but the whole simulator will take longer to run.}
+
+\item{verbose}{If TRUE, the simulator will print all Stan and other function output; if FALSE, it
+will not. The default is FALSE.}
 
 \item{random_seed}{A positive integer seed set prior to starting the simulations.}
 }

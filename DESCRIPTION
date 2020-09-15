@@ -39,6 +39,7 @@ Imports:
     RColorBrewer,
     binom,
     forcats,
+    purrr,
     cowplot,
     knitr
 LinkingTo: 

@@ -257,24 +257,28 @@ From \texttt{twostage}\_\texttt{results}, we get a list containing the items \te
 
 And \texttt{plots} contains:
 
-4. \texttt{gen}\_\texttt{params}\_\texttt{plot}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in table form. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
+4. \texttt{gen}\_\texttt{params}\_\texttt{plot}\_\texttt{blue}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in plot form and in a blue color palette. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-5. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a list of plots giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
+5. \texttt{gen}\_\texttt{params}\_\texttt{plot}\_\texttt{redgreen}. This is the same information as in \texttt{generating}\_\texttt{params}\_\texttt{for}\_\texttt{display}, but in plot form and in a red-green color palette. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-6. \texttt{n}\_\texttt{patients}\_\texttt{plot}. This is a boxplot of the number of patients enrolled for each design and scenario combination across the different simulated trials.
+6. \texttt{acc}\_\texttt{dose}\_\texttt{rec}\_\texttt{plot}. This is a list of plots giving which proportion of trials for each design and scenario combination recommended an acceptable dose, unacceptable dose, or made no recommendation at all. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-7. \texttt{n}\_\texttt{patients}\_\texttt{RP2D}\_\texttt{plot}. This is a boxplot of the number of patients who received the final recommended dose for each design and scenario combination across the different simulated trials. Note that the final recommended dose may not be safe or effective--this is merely a measure of how much patient data the design will yield for the final dose it recommends. 
+7. \texttt{dose}\_\texttt{over}\_\texttt{time}\_\texttt{plot}. This is a list of filled barplots giving the distribution of dose assignments by time, where time is measured by patient number. If there are fewer than \texttt{design}\_\texttt{per}\_\texttt{page} designs and \texttt{scen}\_\texttt{per}\_\texttt{page} scenarios, it will be a list with only one element, which can be printed as shown below; for more designs/scenarios, there may be many plots stored in this list.  
 
-8. \texttt{prop}\_\texttt{patients}\_\texttt{accep}\_\texttt{plot}. This is a boxplot of the number of patients who received an acceptable dose (a dose meeting the toxicity and efficacy standards, if not the best dose) for each design and scenario combination across the different simulated trials. 
+8. \texttt{n}\_\texttt{patients}\_\texttt{plot}. This is a boxplot of the number of patients enrolled for each design and scenario combination across the different simulated trials.
+
+9. \texttt{n}\_\texttt{patients}\_\texttt{RP2D}\_\texttt{plot}. This is a boxplot of the number of patients who received the final recommended dose for each design and scenario combination across the different simulated trials. Note that the final recommended dose may not be safe or effective--this is merely a measure of how much patient data the design will yield for the final dose it recommends. 
+
+10. \texttt{prop}\_\texttt{patients}\_\texttt{accep}\_\texttt{plot}. This is a boxplot of the number of patients who received an acceptable dose (a dose meeting the toxicity and efficacy standards, if not the best dose) for each design and scenario combination across the different simulated trials. 
 
 Although we could print the results of \texttt{twostage}\_\texttt{results} as one big print, we will instead do some formatting to get a more sleek presentation, by using the \texttt{kable} package on the tables and the \texttt{cowplot} package on the plots. For example: 
 ```{r, fig.align="center", fig.height=7, fig.width=12, message=FALSE, warning=FALSE, echo=TRUE}
 kable(myresults$tables$acc_dose_rec_table, caption="Proportion of Trials That 
       Select Acceptable Dose")
 
-#We use acc_dose_rec_plot[[1]], gen_params_plot[[1]] here to call the first element of each
+#We use acc_dose_rec_plot[[1]], gen_params_plot_redgreen[[1]] here to call the first element of each
 #list of plots and then place them side by side:
-plot_grid(myresults$plots$acc_dose_rec_plot[[1]], myresults$plots$gen_params_plot[[1]], 
+plot_grid(myresults$plots$acc_dose_rec_plot[[1]], myresults$plots$gen_params_plot_redgreen[[1]], 
           ncol = 2, nrow=1, rel_widths = c(5,3)) 
 
 kable(myresults$tables$mean_patients_table, caption="Mean Number of Patients Enrolled")
