@@ -418,7 +418,7 @@ twostage_results <- function(csv = FALSE,
 
   for (j in unique(generating_params_tall$scen_designation)) {
     subdat <- filter(generating_params_tall, scen_designation==j)
-    # across all scenarios on this page, how many types of dose levels are there?
+    # across all scenarios on this page, this is how many types of dose levels there are:
     if (setequal(c("1", "3"), subdat$is_acceptable_by_dose_num)){
       # no dose levels are acceptable in all scenarios
       outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
@@ -483,7 +483,7 @@ twostage_results <- function(csv = FALSE,
   for (j in unique(trial_summary_RP2D$set_designation)){
     for (k in unique(trial_summary_RP2D$scen_designation)){
       subdat <- filter(trial_summary_RP2D, set_designation==j & scen_designation==k)
-      # across all scenarios on this page, how many types of dose levels are there?
+      # across all scenarios on this page, this is how many types of dose levels there are:
       if (setequal(c("No Rec\n(correct)", "Rec\n(unaccept)"), subdat$RP2DCode)){
         # no dose levels are acceptable in all scenarios
         outcome_colors_redgreen = RColorBrewer::brewer.pal(5, "RdYlGn")[c(4,1)];
