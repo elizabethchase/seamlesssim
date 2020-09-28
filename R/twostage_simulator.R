@@ -62,6 +62,8 @@
 #'    to be reparametrized. However, in this case, divergent transitions seem to be sporadic.
 #'    ntries indicates how many reruns of the algorithm should be tried when > 0 divergent
 #'    transitions are encountered. The run with the fewest such transitions is kept. The default is 2.}
+#'    \item{stan_seed}{A positive integer used to randomly select the initial values for Stan sampling.
+#'    The default is 1.}
 #' }
 #' For users without familiarity with STAN who still wish to use Bayesian isotonic regression,
 #' some or all of these arguments may be left as NA, and default specifications will be used.
@@ -121,7 +123,8 @@ twostage_simulator = function(array_id = 1,
                               design_labels = NULL,
                               do_efficient_simulation = T,
                               verbose = F,
-                              random_seed = 1) {
+                              random_seed = 1,
+                              stan_seed = 1) {
 
   # Setup----
   y <- NULL
@@ -549,7 +552,8 @@ twostage_simulator = function(array_id = 1,
         mc_stepsize = 0.1,
         mc_adapt_delta = 0.8,
         mc_max_treedepth = 15,
-        ntries = 2
+        ntries = 2,
+        stan_seed = 1
       )
     } else if (is.na(stan_args$n_mc_warmup)){
       stan_args$n_mc_warmup <- 1e3
@@ -567,6 +571,8 @@ twostage_simulator = function(array_id = 1,
       stan_args$mc_max_treedepth <- 15
     } else if (is.na(stan_args$ntries)){
       stan_args$ntries <- 2
+    } else if (is.na(stan_args$stan_seed)){
+      stan_args$stan_seed <- 1
     }
   }
 
@@ -916,7 +922,8 @@ twostage_simulator = function(array_id = 1,
                                               mc_stepsize = stan_args$mc_stepsize,
                                               mc_adapt_delta = stan_args$mc_adapt_delta,
                                               mc_max_treedepth = stan_args$mc_max_treedepth,
-                                              ntries = stan_args$ntries);
+                                              ntries = stan_args$ntries,
+                                              seed = stan_args$stan_seed);
 
             estEff_at_estMTD =
               bayes_iso_fit$data_grouped %>%
@@ -1253,7 +1260,8 @@ twostage_simulator = function(array_id = 1,
                                             mc_stepsize = stan_args$mc_stepsize,
                                             mc_adapt_delta = stan_args$mc_adapt_delta,
                                             mc_max_treedepth = stan_args$mc_max_treedepth,
-                                            ntries = stan_args$ntries);
+                                            ntries = stan_args$ntries,
+                                            seed = stan_args$stan_seed);
 
           #estEff_at_estMTD = bayes_iso_fit$posterior_means[stage2_estMTD[curr_sim]];
           #RP2D =
