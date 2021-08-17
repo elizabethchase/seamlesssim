@@ -16,7 +16,8 @@ twostage_simulator(
   design_labels = NULL,
   do_efficient_simulation = T,
   verbose = F,
-  random_seed = 1
+  random_seed = 1,
+  stan_seed = 1
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ or NA:
    to be reparametrized. However, in this case, divergent transitions seem to be sporadic.
    ntries indicates how many reruns of the algorithm should be tried when > 0 divergent
    transitions are encountered. The run with the fewest such transitions is kept. The default is 2.}
+   \item{stan_seed}{A positive integer used to randomly select the initial values for Stan sampling.
+   The default is 1.}
 }
 For users without familiarity with STAN who still wish to use Bayesian isotonic regression,
 some or all of these arguments may be left as NA, and default specifications will be used.}

@@ -20,7 +20,8 @@ bayesian_isotonic(
   mc_max_treedepth = 15,
   ntries = 2,
   return_as_stan_object = F,
-  tol = .Machine$double.eps^0.5
+  tol = .Machine$double.eps^0.5,
+  seed = 1
 )
 }
 \arguments{
@@ -81,6 +82,8 @@ object of class 'stanfit'. If FALSE, then a summary of results will be
 returned. Defaults to FALSE.}
 
 \item{tol}{A small positive number (double). The default is the square root of the machine precision.}
+
+\item{seed}{A positive integer used to set the random starting point for Stan sampling.}
 }
 \value{
 If return_as_stan_object = TRUE, then an object of class stanfit is returned.

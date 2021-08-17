@@ -46,6 +46,7 @@
 #' object of class 'stanfit'. If FALSE, then a summary of results will be
 #' returned. Defaults to FALSE.
 #' @param tol A small positive number (double). The default is the square root of the machine precision.
+#' @param seed A positive integer used to set the random starting point for Stan sampling.
 #' @return If return_as_stan_object = TRUE, then an object of class stanfit is returned.
 #' This is useful for the initial compilation of the stan model. Otherwise, the function returns the following
 #' named list containing the arguments:
@@ -88,7 +89,8 @@ bayesian_isotonic = function(data_grouped = NULL,
                              mc_max_treedepth = 15,
                              ntries = 2,
                              return_as_stan_object = F,
-                             tol = .Machine$double.eps^0.5) {
+                             tol = .Machine$double.eps^0.5,
+                             seed = 1) {
 
   stopifnot(c("y","n") %in% colnames(data_grouped));
   y <- NULL
@@ -108,6 +110,7 @@ bayesian_isotonic = function(data_grouped = NULL,
                                    y_stan = as.array(pull(data_grouped,y)),
                                    only_prior_stan = as.integer(sample_from_prior_only)),
                               stan_args),
+                     seed = seed,
                      warmup = n_mc_warmup,
                      iter = n_mc_samps + n_mc_warmup,
                      chains = mc_chains,
