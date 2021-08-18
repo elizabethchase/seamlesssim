@@ -2,7 +2,7 @@
 #' basic plots and summary tables.
 #'
 #' For more information on function inputs and features, please see the vignette
-#' and Boonstra (2020) on Arxiv.
+#' and Boonstra, et al.
 #'
 #' @param csv A logical value indicating whether the output from twostage_simulator has been saved
 #' as .csv file(s) (if .csv, then TRUE).
@@ -82,10 +82,13 @@
 #'    acceptable dose (a dose meeting the toxicity and efficacy standards, if not the best dose) for
 #'    each design and scenario combination across the different simulated trials.}
 #' }
+#'
+#' @references
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
 #' @importFrom sjmisc is_empty
 #' @importFrom dplyr %>% mutate arrange near group_by tally n ungroup select filter
 #' summarize left_join
-#' @importFrom tidyr gather spread
 #' @importFrom ggplot2 ggplot aes geom_point geom_line facet_grid labs scale_y_continuous expansion
 #' scale_color_manual guides guide_legend theme element_text margin element_blank geom_bar geom_text
 #' geom_col scale_y_reverse scale_x_continuous scale_fill_manual scale_size_manual geom_boxplot

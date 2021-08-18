@@ -14,7 +14,7 @@ twostage_simulator(
   stan_args = NA,
   sim_labels = NULL,
   design_labels = NULL,
-  do_efficient_simulation = T,
+  do_efficient_simulation = TRUE,
   verbose = F,
   random_seed = 1,
   stan_seed = 1
@@ -83,8 +83,6 @@ or NA:
    to be reparametrized. However, in this case, divergent transitions seem to be sporadic.
    ntries indicates how many reruns of the algorithm should be tried when > 0 divergent
    transitions are encountered. The run with the fewest such transitions is kept. The default is 2.}
-   \item{stan_seed}{A positive integer used to randomly select the initial values for Stan sampling.
-   The default is 1.}
 }
 For users without familiarity with STAN who still wish to use Bayesian isotonic regression,
 some or all of these arguments may be left as NA, and default specifications will be used.}
@@ -108,6 +106,9 @@ simulated independently of each other design, but the whole simulator will take 
 will not. The default is FALSE.}
 
 \item{random_seed}{A positive integer seed set prior to starting the simulations.}
+
+\item{stan_seed}{A positive integer used to randomly select the initial values for Stan sampling.
+The default is 1.}
 }
 \value{
 The function returns a named list with entries:
@@ -182,20 +183,18 @@ twostage_simulator(
          skeleton = c(0.10,0.15,0.25),
          beta_scale = 0.1,
          dose_cohort_size = 3,
-         dose_cohort_size_first_only = T,
+         dose_cohort_size_first_only = TRUE,
          earliest_stop = 6),
        module4 = list(
          name = "bayes_isoreg",
          prob_threshold = 0.87,
          alpha_scale = 1e-7,
-         include_stage1_data = T)
+         include_stage1_data = TRUE)
      )
    )
 )
 
 }
 \references{
-Boonstra, Philip S., Thomas M. Braun, and Elizabeth C. Chase (2021)
-"A modular framework for early-phase seamless oncology trials." Clinical Trials
-18, 303-313.
+\insertRef{boonstra2020}{seamlesssim}
 }

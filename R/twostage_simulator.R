@@ -65,8 +65,6 @@
 #'    to be reparametrized. However, in this case, divergent transitions seem to be sporadic.
 #'    ntries indicates how many reruns of the algorithm should be tried when > 0 divergent
 #'    transitions are encountered. The run with the fewest such transitions is kept. The default is 2.}
-#'    \item{stan_seed}{A positive integer used to randomly select the initial values for Stan sampling.
-#'    The default is 1.}
 #' }
 #' For users without familiarity with STAN who still wish to use Bayesian isotonic regression,
 #' some or all of these arguments may be left as NA, and default specifications will be used.
@@ -85,6 +83,8 @@
 #' @param verbose If TRUE, the simulator will print all Stan and other function output; if FALSE, it
 #' will not. The default is FALSE.
 #' @param random_seed A positive integer seed set prior to starting the simulations.
+#' @param stan_seed A positive integer used to randomly select the initial values for Stan sampling.
+#' The default is 1.
 #' @return The function returns a named list with entries:
 #' \describe{
 #'    \item{patient_data}{A data.frame with number of rows equal to number of individual patients
@@ -129,9 +129,8 @@
 #'      \item{random_seed}{The user-inputted argument to this function having the same name.}
 #' }
 #'
-#' @references Boonstra, Philip S., Thomas M. Braun, and Elizabeth C. Chase (2021)
-#' "A modular framework for early-phase seamless oncology trials." Clinical Trials
-#' 18, 303-313.
+#' @references
+#' \insertRef{boonstra2020}{seamlesssim}
 #'
 #' @examples
 #'twostage_simulator(
@@ -154,13 +153,13 @@
 #'          skeleton = c(0.10,0.15,0.25),
 #'          beta_scale = 0.1,
 #'          dose_cohort_size = 3,
-#'          dose_cohort_size_first_only = T,
+#'          dose_cohort_size_first_only = TRUE,
 #'          earliest_stop = 6),
 #'        module4 = list(
 #'          name = "bayes_isoreg",
 #'          prob_threshold = 0.87,
 #'          alpha_scale = 1e-7,
-#'          include_stage1_data = T)
+#'          include_stage1_data = TRUE)
 #'      )
 #'    )
 #')
@@ -168,6 +167,7 @@
 #' @importFrom dplyr summarise near %>% bind_cols arrange group_by summarize mutate select pull
 #' left_join
 #' @importFrom stats rbinom qbeta xtabs
+#' @importFrom Rdpack reprompt
 #' @import binom
 #' @import rstan
 #' @export
@@ -179,7 +179,7 @@ twostage_simulator = function(array_id = 1,
                               stan_args = NA,
                               sim_labels = NULL,
                               design_labels = NULL,
-                              do_efficient_simulation = T,
+                              do_efficient_simulation = TRUE,
                               verbose = F,
                               random_seed = 1,
                               stan_seed = 1) {
@@ -202,13 +202,14 @@ twostage_simulator = function(array_id = 1,
   n_dose = length(dose_outcome_curves[["tox_curve"]]);
   if(is.null(sim_labels)) {sim_labels = 1:n_sim;}
   stopifnot(near(length(sim_labels), n_sim));
-  stopifnot("list" %in% class(design_list));
+  stopifnot(isTRUE("list" %in% class(design_list)));
 
   # design_list should be a list of lists of lists. But if only one design is
   # desired, the user might unintentionally provide just a list of lists.
   # We don't want this to cause problems and so this checks for that provision
   # and adjusts it appropriately
-  if(all(names(design_list) %in% c("module1", "module2", "module3", "module4"))) {
+  if(!is.null(names(design_list)) &&
+     all(names(design_list) %in% c("module1", "module2", "module3", "module4"))) {
     design_list = list(design_list);
   }
 
@@ -239,10 +240,10 @@ twostage_simulator = function(array_id = 1,
     stop("The vectors 'tox_curve' and 'eff_curve', which are elements of 'dose_outcome_curves', must have the same length");
   }
   if(any(dose_outcome_curves[["tox_curve"]] > 1) | any(dose_outcome_curves[["tox_curve"]] < 0)){
-    warning("tox_curve has probabilities outside of [0, 1]")
+    stop("tox_curve has probabilities outside of [0, 1]")
   }
   if(any(dose_outcome_curves[["eff_curve"]] > 1) | any(dose_outcome_curves[["eff_curve"]] < 0)){
-    warning("eff_curve has probabilities outside of [0, 1]")
+    stop("eff_curve has probabilities outside of [0, 1]")
   }
 
   for(curr_stage in c("stage1","stage2")) {
@@ -255,14 +256,14 @@ twostage_simulator = function(array_id = 1,
         stop("The vectors 'eff_curve' and 'eff_curve_stage2', which are elements of 'dose_outcome_curves', must have the same length");
       }
       if(any(dose_outcome_curves[["eff_curve_stage2"]] > 1) | any(dose_outcome_curves[["eff_curve_stage2"]] < 0)){
-        warning("eff_curve_stage2 has probabilities outside of [0, 1]")
+        stop("eff_curve_stage2 has probabilities outside of [0, 1]")
       }
       curr_efficacy_curve = dose_outcome_curves[["eff_curve_stage2"]];
     }
 
     #The first 'T' corresponds to dose zero, which is acceptable if andonly if all other dose levels are unacceptable
     curr_acceptability =
-      c(T,(curr_efficacy_curve >= (primary_objectives["eff_target"])) &
+      c(TRUE, (curr_efficacy_curve >= (primary_objectives["eff_target"])) &
           (dose_outcome_curves[["tox_curve"]] <= primary_objectives["tox_target"] + primary_objectives["tox_delta_no_exceed"]));
     curr_pref = max(which(curr_acceptability)) - 1;
     store_eff_curves[curr_stage,] = c(curr_efficacy_curve,curr_acceptability[-1],curr_pref);
@@ -564,7 +565,7 @@ twostage_simulator = function(array_id = 1,
                                   dimnames = list(NULL,paste0("module",c(1:4))));
   # This identifies common elements between designs, allowing the simulator
   # to reuse simulated data between designs and thereby be more efficient.
-  if(do_efficient_simulation) {
+  if(do_efficient_simulation && length(design_list) > 1) {
     for(i in seq_along(design_list)[-1]) {
       for(j in seq_len(i-1)) {
         curr_match = shared_design_elements[i,];
@@ -1215,7 +1216,7 @@ twostage_simulator = function(array_id = 1,
       store_stage2_enrollment_postmodule2[[k]] = stage2_enrollment;
 
     }
-    #Module 5: Second efficacy----
+    #Module 4: Second efficacy----
 
     #Safety-only code dictionary
     #1TN = Stage 2 did not open (all dose levels found to be unsafe during Stage 1, either during or at end of enrollment)

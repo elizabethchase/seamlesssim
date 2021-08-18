@@ -34,6 +34,11 @@
 #'    \item{enrollment}{A vector as long as the number of simulated trials giving the total enrollment for that trial.}
 #'    \item{seed}{The seed that was used by the function.}
 #' }
+#'
+#' @references
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#'
 #' @importFrom stats binomial
 #' @export
 sim_empiric_dec = function(n_sim,

@@ -26,6 +26,11 @@
 #' for that trial.}
 #'    \item{seed}{The seed that was used by the function.}
 #' }
+#'
+#' @references
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#'
 #' @importFrom dplyr near
 #' @importFrom stats binomial
 #' @export

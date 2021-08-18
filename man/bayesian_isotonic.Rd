@@ -111,5 +111,5 @@ of a set of probabilities that are order constrained but each a priori marginall
 distributed as beta random variables.
 }
 \references{
-PS Boonstra, DR Owen, and J Kang, "The isotonic horseshoe prior for modeling binary outcomes." Arxiv, 2020.
+\insertRef{boonstra2020b}{seamlesssim}
 }

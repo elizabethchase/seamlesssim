@@ -1,17 +1,23 @@
-#' S3 print method for titesim_phil
+#' S3 print method for titesim_ss
 #'
-#' print.philsim prints the results from titesim_phil, the simulator function
+#' print.titesim_ss prints the results from titesim_ss, the simulator function
 #' for a tite-crm trial.
 #'
-#' @param x An object of type titesim_phil, outputted from titesim_phil.
+#' @param x An object of type titesim_ss, outputted from titesim_ss.
 #' @param dgt Number of digits for output rounding. Default value is 3.
 #' @param patient.detail Should patient-level information be provided, or only summary data?  Default is patient-level,
 #' indicated by TRUE. For only summary data, use FALSE.
 #' @param ... List of additional arguments. Currently the following are implemented:
-#' @return Printed output from titesim_phil.
+#' @return Printed output from titesim_ss.
+#' @references
+#'
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#' \insertRef{dfcrm2019}{seamlesssim}
+#'
 #' @import dfcrm
 #' @export
-print.philsim = function (x, ...)
+print.titesim_ss = function (x, ...)
 {
 
   args = list(...)

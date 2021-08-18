@@ -65,7 +65,8 @@
 #' posterior distribution, which may be large.}
 #'    \item{chain_run_times_secs, total_run_time_secs}{Length of time (seconds) for chain runs and total runs.}
 #' }
-#' @references PS Boonstra, DR Owen, and J Kang, "The isotonic horseshoe prior for modeling binary outcomes." Arxiv, 2020.
+#' @references
+#' \insertRef{boonstra2020b}{seamlesssim}
 #' @importFrom dplyr pull near %>% mutate bind_cols
 #' @importFrom tibble as_tibble
 #' @importFrom stats quantile

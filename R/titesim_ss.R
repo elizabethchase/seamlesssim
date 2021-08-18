@@ -1,12 +1,14 @@
-#' Expanded version of the dfcrm::titesim function to incorporate some useful design elements of the
-#' time-to-event continual reassessment method
+#' Expanded version of the dfcrm::titesim function to incorporate design elements into the
+#' time-to-event continual reassessment method that are especially useful for
+#' seamless simulations.
 #'
-#' This is the simulator function for a TITE-CRM trial. The user provides as input
-#' both the design elements as well as the true, dose-toxicity curve that is generally unknown in
-#' the real world. The simulator runs a certain number of simulated trials, creating data according to the
-#' dose-toxicity curve and making assignments according to the titecrm model. Various operating charateristics
-#' are reported. This function is meant to be called in the context of twostage_simulator rather than by the
-#' user directly.
+#' This is the simulator function for a TITE-CRM trial. It is meant to be called in the context of
+#' twostage_simulator() rather than by the user directly. Required input includes both the design elements as well as the
+#' true, dose-toxicity curve that is
+#' generally unknown in the real world. The simulator runs a certain number of
+#' simulated trials, creating data according to the dose-toxicity curve and
+#' making assignments according to the titecrm model. Various operating characteristics
+#' are reported.
 #'
 #' @param PI Numeric vector with entries between 0 and 1 of true toxicity probabilities; assumed to match
 #' the order of the dose labels.
@@ -36,7 +38,7 @@
 #' @param method A string indicating the method for fitting model. The original titesim function allows
 #' "mle" or "bayes"; here, only "bayes" is allowed.
 #' @param model A string indicating the type of model. The original titesim function allows "empiric"
-#' (sometimes known as the power model) or "logistic"; here, only "empiric" is allowed.
+#' (sometimes known as the power model) or "logistic".
 #' @param intcpt A numeric value giving the intercept parameter when using the "logistic" model.
 #' @param scale A numeric value giving the prior standard deviation on the parameter beta.
 #' @param seed A positive integer random seed.
@@ -56,10 +58,16 @@
 #' @return The function returns a list, with named components last_sim and all_sim. Access the last_sim to
 #' see the individual details of the single last simulation, or access all_sim to see summaries across all
 #' simulations performed.
+#' @references
+#'
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#' \insertRef{dfcrm2019}{seamlesssim}
+#'
 #' @importFrom stats rexp binomial runif
 #' @import dfcrm
 #' @export
-titesim_phil = function (PI, prior, target, n, x0, nsim = 1, restrict = TRUE,
+titesim_ss = function (PI, prior, target, n, x0, nsim = 1, restrict = TRUE,
                          obswin = 1, tgrp = obswin, rate = 1, accrual = "fixed", surv = "uniform", surv_rate = obswin/10,
                          scheme = "polynomial", scheme_args = list(scheme_power = 1), count = TRUE, method = "bayes", model = "empiric",
                          intcpt = 3, scale = sqrt(1.34), seed = 1009,
@@ -122,18 +130,18 @@ titesim_phil = function (PI, prior, target, n, x0, nsim = 1, restrict = TRUE,
           tox_obs <- rep(0, i)
           tox_obs[trial_time_tox <= next_arrival] <- 1
           followup <- pmin(pmin(next_arrival,trial_time_tox) - arrival[1:i], obswin)
-          obj <- titecrm_phil(prior, target, tox_obs, level[1:i], followup = followup,
+          obj <- titecrm_ss(prior, target, tox_obs, level[1:i], followup = followup,
                               obswin = obswin, scheme = scheme, scheme_args = scheme_args,
                               method = method,
                               model = model, intcpt = intcpt, scale = scale,
                               var.est = T, conf.level = conf.level);
         } else {
           followup <- pmin(trial_time_tox-arrival,obswin)
-          obj <- titecrm_phil(prior, target, all_tox, level, weights = rep(1,n), method = method, model = model, intcpt = intcpt,
+          obj <- titecrm_ss(prior, target, all_tox, level, weights = rep(1,n), method = method, model = model, intcpt = intcpt,
                               scale = scale, var.est = T, conf.level = conf.level);
         }
 
-        ###Begin Phil's modification
+        ###Begin seamless sim modifications
         if(i%%cohort.size==0) {#Only modify the dose at the end of each cohort
           if(restrict) {
             max.possible = max(c(0,which((obj$ptox-target)<=no.exceed)));#To indicate whether to stop early due to toxicity
@@ -165,13 +173,13 @@ titesim_phil = function (PI, prior, target, n, x0, nsim = 1, restrict = TRUE,
 
 
         if(n.at.MTD < Inf && sum(level==cur) >= n.at.MTD && sum((followup*(1-tox_obs)/obswin + tox_obs)[level[1:i]==cur][1:n.at.MTD]) >= n.at.MTD)  {
-          obj <- titecrm_phil(prior, target, all_tox[1:i], level[1:i], weights = rep(1,i), method = method, model = model, intcpt = intcpt,
+          obj <- titecrm_ss(prior, target, all_tox[1:i], level[1:i], weights = rep(1,i), method = method, model = model, intcpt = intcpt,
                               scale = scale, var.est = T, conf.level = conf.level);
 
           bethat = c(bethat, obj$est, rep(Inf,n-i-1));
           break;
         }
-        ###End Phil's modification
+        ###End seamless sim modifications
         i=i+1;
         bethat <- c(bethat, obj$est);
       }
@@ -224,6 +232,6 @@ titesim_phil = function (PI, prior, target, n, x0, nsim = 1, restrict = TRUE,
                               no.exceed = no.exceed, cohort.size = first.cohort.size, first.cohort.only = first.cohort.only,
                               stop.for.tox = stop.for.tox, n.at.MTD = n.at.MTD, followup_b4_esc = followup_b4_esc, earliest_stop = earliest_stop))
 
-  class(foo) <- "philsim"
+  class(foo) <- "titesim_ss"
   foo
 }

@@ -65,3 +65,6 @@ A named list with entries:
 A general purpose simulator for dose expansion cohorts (DECs). It is intended to be called
 from twostage_simulator rather than by the user directly.
 }
+\references{
+\insertRef{boonstra2020}{seamlesssim}
+}
