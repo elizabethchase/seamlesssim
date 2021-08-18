@@ -28,7 +28,7 @@ function multiple times, e.g. in parallel.}
 \item{n_sim}{A positive integer indicating how many simulated trials to conduct for each
 design configuration.}
 
-\item{primary_objectives}{A list containing three named elements: tox_target, tox_delta_no_exceed,
+\item{primary_objectives}{A vector containing three named elements: tox_target, tox_delta_no_exceed,
 and eff_target, such that tox_target is between 0 and 1, tox_delta_no_exceed is between 0 and
 (1 - tox_target), and eff_target is between 0 and 1. These choices delineate the primary
 objectives of all designs to be simulated.  The true MTD is defined as the dose level with
@@ -55,7 +55,9 @@ module4 are not provided, they are assumed to correspond to a choice of module2 
 list(name = "none"). Finally, the lowest level of the list gives the list of choices for each particular
 module. Each list must have one entry named "name" to indicate the choice of module, and
 also a value for every argument that is specific to that module. See the vignette for
-examples.}
+examples.
+
+If a user has just one design in mind, they may instead provide a list of lists.}
 
 \item{stan_args}{A list containing eight named elements for the Bayesian isotonic regression.
 For users without familiarity with STAN, stan_args can be left as NA (the default), and the defaults will all
@@ -116,10 +118,28 @@ The function returns a named list with entries:
    length(design_list) * n_sim. }
    \item{sim_data_stage1}{A data.frame with number of rows equal to length(design_list) * n_sim,
     i.e. one per design per simulation. It gives trial-level summary information about the
-    status of the trial at the end of module 2 of each design.}
+    status of the trial at the end of module 2, which is also the end of stage 1, of each design.
+    Some key columns to note are
+    (i) estMTD: the dose level estimated to be the MTD at the end of stage 1; (ii) estMTDCode:
+    either '1Y' (where the '1' refers to the stage and the 'Y' refers to the module not
+    stopping for toxicity) or '1N' (where the 'N' refers to the module stopping for toxicity);
+    (iii) RP2D: the dose level that would be recommended right now; (iv) RP2DCode: either '1N'
+    (where the '1' refers to the stage and the 'N' refers to the module stopping for futility)
+    or '1Y' (where the 'Y' refers to stage 1 completing);
+    (v) bestP2D: is the RP2D the dose with the highest efficacy that is still safe?}
    \item{sim_data_stage2}{A data.frame with number of rows equal to length(design_list) * n_sim,
     i.e. one per design per simulation. It gives trial-level summary information about the
-    status of the trial at the end of module 4 of each design.}
+    status of the trial at the end of module 4 (end of stage 2) of each design. Some key columns to note are
+    (i) estMTD: the dose level estimated to be the MTD at the end of stage 2; (ii) estMTDCode:
+    '1TN' (the trial stopped for toxicity during stage 1, i.e. didn't even proceed
+    to stage 2), '1EN' (the trial stopped for futility at the end of stage 1), '2TN' (the
+    trial stopped for toxicity during stage 2), or '2Y' (the trial completed)
+    (iii) RP2D: the dose level that would be recommended right now; (iv) RP2DCode: '1TN'
+    (the trial stopped for toxicity during stage 1, i.e. didn't even proceed
+    to stage 2), '1EN' (the trial stopped for futility at the end of stage 1), '2TN' (the
+    trial stopped for toxicity during stage 2), '2EN' (the trial stopped for futility
+    at the end of stage 2), '2Y' (the trial completed)
+    (v) bestP2D: is the RP2D the dose with the highest efficacy that is still safe?}
     \item{dose_outcome_curves}{The user-inputted argument to this function having the same name.}
     \item{titecrm_args}{The list of common arguments that were used for the crm simulator.}
     \item{design_list}{The user-inputted argument to this function having the same name.}
@@ -136,8 +156,46 @@ The function returns a named list with entries:
 }
 \description{
 twostage_simulator is the primary workhorse of seamlesssim. It simulates complex seamless Phase I/II
-oncology trials as discussed in the article by Boonstra et al. (Arxiv, 2020). It allows clinical
-trialists to determine operating characteristics of trials that assess both
+oncology trials as discussed in the article by Boonstra et al. (2021).
+It allows clinical trialists to determine operating characteristics of trials that assess both
 toxicity and efficacy with a range of different design and analytic approaches. For more detailed
-information, see Boonstra et al. (Arxiv, 2020) and the vignette.
+information, see Boonstra et al. and the vignette.
+}
+\examples{
+twostage_simulator(
+ n_sim = 10,
+ primary_objectives =
+   c(tox_target = 0.25,
+     tox_delta_no_exceed = 0.05,
+     eff_target = 0.70),
+ dose_outcome_curves =
+   list(tox_curve = c(0.10,0.15,0.25),
+        eff_curve = c(0.45,0.55,0.65),
+        scenario = 1),
+ design_list =
+   list(
+     list(
+       module1 = list(
+         name = "crm",
+         n = 25,
+         starting_dose = 3,
+         skeleton = c(0.10,0.15,0.25),
+         beta_scale = 0.1,
+         dose_cohort_size = 3,
+         dose_cohort_size_first_only = T,
+         earliest_stop = 6),
+       module4 = list(
+         name = "bayes_isoreg",
+         prob_threshold = 0.87,
+         alpha_scale = 1e-7,
+         include_stage1_data = T)
+     )
+   )
+)
+
+}
+\references{
+Boonstra, Philip S., Thomas M. Braun, and Elizabeth C. Chase (2021)
+"A modular framework for early-phase seamless oncology trials." Clinical Trials
+18, 303-313.
 }
