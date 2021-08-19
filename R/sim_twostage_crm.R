@@ -6,11 +6,11 @@
 #'
 #' @param n_sim How many simulated trials to conduct? (positive integer)
 #' @param titecrm_args This is a named list providing all of the arguments that the function
-#' titesim_phil expects. See titesim_phil documentation for more information on these required components.
+#' titesim_ss expects. See titesim_ss documentation for more information on these required components.
 #' If the arguments prior, x0, and scale vary between simulations, then these arguments should be specified
 #' separately using sim_specific_prior, sim_specific_x0, and sim_specific_scale, respectively.
 #' @param second_stage_start_after If simulating a two-stage CRM, this positive integer indicates after how
-#' many patients should we switco the second stage. If a one-stage CRM is desired, second_stage_start_after
+#' many patients should we switch to the second stage. If a one-stage CRM is desired, second_stage_start_after
 #' should equal n in titecrm_args.
 #' @param first_stage_label A numeric value to be appended to all patients who belonged to the first stage.
 #' @param sim_specific_start_id A positive integer vector containing the starting subject id for
@@ -43,6 +43,13 @@
 #' simulated trial stopped in the first stage).}
 #'   \item{seed}{The seed that was used by the function.}
 #' }
+#'
+#' @references
+#'
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#' \insertRef{dfcrm2019}{seamlesssim}
+#'
 #' @importFrom dplyr summarise near %>% group_by filter select
 #' @importFrom data.table first last
 #' @export
@@ -104,7 +111,7 @@ sim_twostage_crm = function(n_sim,
 
     #Only need to simulate trials that start at a strictly positive dose level
     if(sim_specific_x0[i] > 0) {
-      big_crm = do.call(titesim_phil, args = titecrm_args)
+      big_crm = do.call(titesim_ss, args = titecrm_args)
 
       new_dat = cbind(big_crm$last_sim$level,
                       (big_crm$last_sim$PI)[big_crm$last_sim$level],

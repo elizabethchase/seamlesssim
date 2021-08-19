@@ -2,7 +2,8 @@
 % Please edit documentation in R/calc_new_skeleton.R
 \name{calc_new_skeleton}
 \alias{calc_new_skeleton}
-\title{Function to update a CRM skeleton in a two-stage CRM.}
+\title{Function to update a CRM skeleton in a seamless design where the second
+stage uses the CRM.}
 \usage{
 calc_new_skeleton(old_skeleton, tox, level, offset_seq = NULL)
 }
@@ -26,7 +27,12 @@ A named list containing elements new_skeleton (the updated skeleton) and new_sca
 (the suggested revised prior scale to put on the single parameter beta in the power model).
 }
 \description{
-This function updates an initial crm skeleton when using the empiric (power) model, after
+This function updates an initial CRM skeleton when using the empiric (power) model, after
 some data have been gathered on the dose-toxicity curve. This code is currently not used,
 but is included for posterity.
+}
+\references{
+\insertRef{boonstra2020}{seamlesssim}
+
+\insertRef{dfcrm2019}{seamlesssim}
 }

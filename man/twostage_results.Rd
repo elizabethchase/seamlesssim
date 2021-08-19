@@ -118,5 +118,8 @@ plots contains:
 }
 \description{
 For more information on function inputs and features, please see the vignette
-and Boonstra (2020) on Arxiv.
+and Boonstra, et al.
+}
+\references{
+\insertRef{boonstra2020}{seamlesssim}
 }

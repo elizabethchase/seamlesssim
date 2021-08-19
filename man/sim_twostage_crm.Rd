@@ -20,12 +20,12 @@ sim_twostage_crm(
 \item{n_sim}{How many simulated trials to conduct? (positive integer)}
 
 \item{titecrm_args}{This is a named list providing all of the arguments that the function
-titesim_phil expects. See titesim_phil documentation for more information on these required components.
+titesim_ss expects. See titesim_ss documentation for more information on these required components.
 If the arguments prior, x0, and scale vary between simulations, then these arguments should be specified
 separately using sim_specific_prior, sim_specific_x0, and sim_specific_scale, respectively.}
 
 \item{second_stage_start_after}{If simulating a two-stage CRM, this positive integer indicates after how
-many patients should we switco the second stage. If a one-stage CRM is desired, second_stage_start_after
+many patients should we switch to the second stage. If a one-stage CRM is desired, second_stage_start_after
 should equal n in titecrm_args.}
 
 \item{first_stage_label}{A numeric value to be appended to all patients who belonged to the first stage.}
@@ -71,4 +71,9 @@ simulated trial stopped in the first stage).}
 This is a general purpose simulator for the CRM as used by the function twostage_simulator.
 If desired, users can simulate a two-stage CRM (two rounds of toxicity assignment), rather
 than a one-stage CRM.
+}
+\references{
+\insertRef{boonstra2020}{seamlesssim}
+
+\insertRef{dfcrm2019}{seamlesssim}
 }

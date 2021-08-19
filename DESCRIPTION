@@ -3,6 +3,7 @@ Title: Simulates Seamless Phase I/II Oncology Trials
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Philip",
+           middle = "S",
            family = "Boonstra",
            role = c("aut", "cre"),
            email = "philb@umich.edu",
@@ -13,10 +14,10 @@ Authors@R:
            email = "ecchase@umich.edu",
            comment = c(ORCID = "0000-0003-0452-2976"))       
 Description: seamlesssim simulates complex seamless Phase I/II oncology trials 
-    as discussed in the article by Boonstra et al. (Arxiv, 2020). It allows clinical 
+    as discussed in the article by Boonstra et al. (2021). It allows clinical 
     trialists to determine operating characteristics of trials that assess both 
     toxicity and efficacy with a range of different design and analytic approaches. 
-    For more information, see Boonstra et al. (Arxiv, 2020) and the vignette.
+    For more information, see Boonstra et al. and the vignette.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -41,7 +42,9 @@ Imports:
     forcats,
     purrr,
     cowplot,
-    knitr
+    knitr,
+    rmarkdown,
+    Rdpack
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -49,5 +52,6 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 VignetteBuilder: knitr
+RdMacros: Rdpack
 SystemRequirements: GNU make
 RoxygenNote: 7.1.1

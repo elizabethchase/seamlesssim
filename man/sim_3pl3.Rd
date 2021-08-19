@@ -49,3 +49,6 @@ for that trial.}
 This function is an efficient simulator of the 3+3 design. It is intended to be called from
 twostage_simulator rather than by the user directly.
 }
+\references{
+\insertRef{boonstra2020}{seamlesssim}
+}

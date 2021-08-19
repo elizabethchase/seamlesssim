@@ -1,6 +1,7 @@
-#' Function to update a CRM skeleton in a two-stage CRM.
+#' Function to update a CRM skeleton in a seamless design where the second
+#' stage uses the CRM.
 #'
-#' This function updates an initial crm skeleton when using the empiric (power) model, after
+#' This function updates an initial CRM skeleton when using the empiric (power) model, after
 #' some data have been gathered on the dose-toxicity curve. This code is currently not used,
 #' but is included for posterity.
 #'
@@ -16,6 +17,13 @@
 #' offset_seq helps to see if a better fit is obtained by scaling old_skeleton up or down.
 #' @return A named list containing elements new_skeleton (the updated skeleton) and new_scale
 #' (the suggested revised prior scale to put on the single parameter beta in the power model).
+#'
+#' @references
+#'
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#' \insertRef{dfcrm2019}{seamlesssim}
+#'
 #' @importFrom stats logLik glm binomial predict vcov
 #' @export
 calc_new_skeleton = function(old_skeleton,

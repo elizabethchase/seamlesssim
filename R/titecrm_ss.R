@@ -1,13 +1,15 @@
-#' Function to fit a TITE-CRM
+#' Expanded version of the dfcrm::titecrm function to incorporate some useful design elements of the
+#' time-to-event continual reassessment method
 #'
 #' This is a function that makes dose recommendations for the next patient given the inputted data and
-#' the design parameters according to the continual reasssessment method. At the end of the trial, it returns
+#' the design parameters according to the continual reasssessment method. It is meant to be called in the context of
+#' twostage_simulator() (by way of titesim_ss()) rather than by the user directly. At the end of the trial, it returns
 #' estimates of the dose-toxicity curve under a one-parameter model where dose is the only predictor
-#' and prints out a dose recommendation. IMPORTANT: NO SAFETY CONSTRAINTS ARE IMPLEMENTED
-#' IN THIS FUNCTION. IT ONLY PRINTS OUT THE MODEL-BASED DOSE ASSIGNMENT FOR THE NEXT PATIENT;
-#' IT IS UP TO THE USER TO  DETERMINE WHETHER ALL SAFETY CONSTRAINTS WOULD BE SATISFIED BY ANY
-#' GIVEN DOSE ASSIGNMENT AND TO REDUCE THE ASSIGNMENT AS NECESSARY. This function is based upon
-#' the titecrm function by Ken Cheung.
+#' and prints out a dose recommendation. IMPORTANT: No safety constraints are
+#' implemented in this function. It only prints out the model-based dose assignment
+#' for the next patient. The safety constraints are taken care of in
+#' titesim_ss(). If the user is calling titecrm_ss directly, it is up to them to
+#' determine whether all intended safety constraints are satisfied and to reduce the assignment as necessary.
 #'
 #' @param prior A numeric vector with values between 0 and 1; the anticipated probabilities
 #' of toxicity for each dose. More commonly called the skeleton.
@@ -41,9 +43,10 @@
 #' @param pid A vector of length n giving each patient's identifier. Default is to assign each patient
 #' an identifier from 1 to n.
 #' @param method A string indicating the method for fitting the model. The original titecrm
-#' function allows "mle" or "bayes"; titecrm_phil only includes "bayes".
+#' function allows "mle" or "bayes". The choice of "mle" has not been tested extensively in titecrm_ss
 #' @param model A string indicating the type of model. The original titesim function allows
-#' "empiric" (sometimes known as the power model) or "logistic"; titecrm_phil only includes "empiric".
+#' "empiric" (sometimes known as the power model) or "logistic".  The choice of "logistic"
+#' has not been tested extensively in titecrm_ss
 #' @param var.est A logical value indicating if the posterior variance of model parameters should be returned.
 #' Default is TRUE.
 #' @param scale A positive numeric value indicating the prior standard deviation on the parameter beta.
@@ -70,12 +73,17 @@
 #'   \item{ptoxU}{Upper confidence interval bound on the probability of toxicity at each dose.}
 #'   \item{dosescaled}{Scaled dose levels.}
 #' }
-#' @references Ken Cheung, "dfcrm: Dose-Finding by the Continual Reassessment Method." Version 0.2-2.1, 2019.
-#' https://CRAN.R-project.org/package=dfcrm
+#'
+#' @references
+#'
+#' \insertRef{boonstra2020}{seamlesssim}
+#'
+#' \insertRef{dfcrm2019}{seamlesssim}
+#'
 #' @importFrom stats optimize integrate qnorm
 #' @import dfcrm
 #' @export
-titecrm_phil = function (prior, target, tox, level, n = length(level), weights = NULL,
+titecrm_ss = function (prior, target, tox, level, n = length(level), weights = NULL,
                          followup = NULL, entry = NULL, exit = NULL, obswin = NULL,
                          scheme = "polynomial", scheme_args = list(scheme_power=1), conf.level = 0.9, dosename = NULL, include = 1:n,
                          pid = 1:n, method = "bayes", model = "empiric", var.est = TRUE,
