@@ -1,4 +1,4 @@
-This is the repository for the seamlesssim package, which accompanies Boonstra, Braun, and Chase's paper on seamless trial design (Arxiv 2020). Interested users should examine that paper, along with the manual and vignette posted here, for examples and explanations for how to use the package. 
+This is the repository for the seamlesssim package, which accompanies Boonstra, Braun, and Chase's paper on seamless trial design ([Clinical Trials 2021](https://journals.sagepub.com/doi/full/10.1177/1740774520981939)). Interested users should examine that paper, along with the manual and vignette posted here, for examples and explanations for how to use the package. 
 
 Users should first check to make sure they have Stan and the rstan package installed. Installing these packages can be challenging. 
 
